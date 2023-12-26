@@ -6,12 +6,14 @@ import draw.effect.ShapeShadow
 import draw.utils.buildDraw
 import element.AbstractElement
 import element.measure.ShadowInfo
+import element.measure.size.FloatRectSize
 import element.measure.size.FloatSize
 import org.jetbrains.skia.*
 import utils.center
 import utils.paint
 import utils.saveBlock
 import utils.size
+import kotlin.math.sin
 
 /**
  * 圆弧元素
@@ -38,12 +40,19 @@ class ArcElement(
     }
 
     init {
+        beforeDrawChain.plus(buildDraw {
+
+        })
+
         beforeDrawChain.plus(shapeShadowDraw())
 
         elementDraw = buildDraw {
             saveBlock({
-                val size = size.minus(padding.size())
-                clipRect(Rect.makeXYWH(padding.left, padding.top, size.width, size.height))
+                val bound = arcRect()
+                translate(padding.left, padding.top)
+                clipRect(Rect.makeWH(bound.width, bound.height))
+                translate(- bound.left, - bound.top)
+
             }) {
                 drawPath(path, buildPaint())
             }
@@ -53,13 +62,23 @@ class ArcElement(
     private fun buildPaint() = paint(paintBuilder)
 
     override fun autoSize(): FloatSize {
-        return oval.size().add(padding.size())
+        return arcRect().size().add(padding.size())
     }
+
+    /**
+     * 对弧形的宽高进行精确计算
+     */
+    private fun arcRect(): Rect = path.computeTightBounds()
 
     override fun shapeShadowDraw(): Draw = buildDraw {
         shadowInfo?.let {
             saveBlock({
+                val bound = arcRect()
+                translate(padding.left, padding.top)
+
                 clipPath(path, ClipMode.DIFFERENCE, antiAlias = true)
+
+                translate(- bound.left, - bound.top)
             }) {
                 drawPath(path, paint {
                     imageFilter = it.getDropShadowImageFilterOnly()
@@ -70,7 +89,7 @@ class ArcElement(
 
     override fun path(): Path {
         return Path().apply {
-            arcTo(Rect.makeXYWH(padding.left, padding.top, oval.width, oval.height), startAngle, realSweepAngle, includeCenter)
+            arcTo(Rect.makeWH(oval.width, oval.height), startAngle, realSweepAngle, includeCenter)
         }
     }
 }

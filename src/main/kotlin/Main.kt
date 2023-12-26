@@ -115,7 +115,7 @@ fun main() {
         }.apply {
             padding = FloatRectSize(10f, 10f, 10f, 10f)
         })
-        add(ArcElement(Rect.makeWH(20f, 50f), 0f, 90f, true){
+        add(ArcElement(Rect.makeWH(20f, 50f), 120f, 90f, true){
             color = Color.RED
         }.apply {
             padding = FloatRectSize(10f, 10f, 0f, 0f)
@@ -130,7 +130,7 @@ fun main() {
         add(ArcElement.circular(30f, shadowInfo = ShadowInfo(2f, 2f, 5f, Color.BLACK)){
             color = Color.BLACK.colorCopy(a = 10)
         }.apply {
-            padding = FloatRectSize(10f, 10f, 10f, 10f)
+            padding = FloatRectSize(15)
         })
 
         add(RRectElement(100f, 50f, 5f, 8f){
@@ -162,10 +162,17 @@ fun main() {
 
     absoluteLayout.draw(ElementDrawContext(image))
 
-//    image.canvas.drawPath(Path().apply {
+
+//    val path = Path().apply {
 //        arcTo(Rect(200f, 200f, 400f, 400f), 520f, 181f, true)
-//    }, paint {
+//    }
+//    image.canvas.drawPath(path, paint {
 //        color = Color.RED
+//    })
+//
+//    image.canvas.translate(path.computeTightBounds().left, path.computeTightBounds().top)
+//    image.canvas.drawPath(path, paint {
+//        color = Color.BLUE
 //    })
 
     val time = System.currentTimeMillis() - startTime
