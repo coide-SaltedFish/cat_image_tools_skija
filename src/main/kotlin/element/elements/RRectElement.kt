@@ -1,12 +1,12 @@
 package element.elements
 
+import draw.Draw
+import draw.effect.ShapeShadow
 import draw.utils.buildDraw
 import element.AbstractElement
 import element.measure.ShadowInfo
 import element.measure.size.FloatSize
-import org.jetbrains.skia.Paint
-import org.jetbrains.skia.RRect
-import org.jetbrains.skia.Rect
+import org.jetbrains.skia.*
 import utils.paint
 import utils.saveBlock
 
@@ -15,39 +15,46 @@ import utils.saveBlock
  */
 class RRectElement(
     var rRect: RRect,
+    override var shadowInfo: ShadowInfo? = null,
     var paintBuilder: Paint.() -> Unit = {}
-): AbstractElement() {
-    constructor(width: Float, height: Float, tlRad: Float, trRad: Float, brRad: Float, blRad: Float, paintBuilder: Paint.() -> Unit = {}): this(RRect.makeXYWH(0f, 0f, width, height, tlRad, trRad, brRad, blRad), paintBuilder)
-    constructor(width: Float, height: Float, radius: Float, paintBuilder: Paint.() -> Unit = {}): this(RRect.makeXYWH(0f, 0f, width, height, radius), paintBuilder)
-    constructor(width: Float, height: Float, xRad: Float, yRad: Float, paintBuilder: Paint.() -> Unit = {}): this(RRect.makeXYWH(0f, 0f, width, height, xRad, yRad), paintBuilder)
+): AbstractElement(), ShapeShadow {
+    constructor(width: Float, height: Float, tlRad: Float, trRad: Float, brRad: Float, blRad: Float, shadowInfo: ShadowInfo? = null, paintBuilder: Paint.() -> Unit = {}): this(RRect.makeXYWH(0f, 0f, width, height, tlRad, trRad, brRad, blRad), shadowInfo, paintBuilder)
+    constructor(width: Float, height: Float, radius: Float, shadowInfo: ShadowInfo? = null, paintBuilder: Paint.() -> Unit = {}): this(RRect.makeXYWH(0f, 0f, width, height, radius), shadowInfo, paintBuilder)
+    constructor(width: Float, height: Float, xRad: Float, yRad: Float, shadowInfo: ShadowInfo? = null, paintBuilder: Paint.() -> Unit = {}): this(RRect.makeXYWH(0f, 0f, width, height, xRad, yRad), shadowInfo, paintBuilder)
+
+    private val path: Path get() = path()
 
     init {
+        beforeDrawChain.plus(shapeShadowDraw())
+
         elementDraw = buildDraw {
             saveBlock({
-                clipRect(Rect.makeXYWH(padding.left, padding.top, size.width - padding.width, size.height - padding.height))
                 translate(padding.left, padding.top)
+                clipRect(Rect.makeWH(size.width - padding.width, size.height - padding.height))
             }) {
-                drawRRect(rRect, paint(paintBuilder))
+                drawPath(path, paint(paintBuilder))
             }
         }
     }
 
-    /**
-     * 阴影绘制
-     */
-    fun shadow(shadowInfo: ShadowInfo){
-        beforeDrawChain.plus(buildDraw {
-            saveBlock({
-                translate(padding.left, padding.top)
-            }) {
-                drawRRect(rRect, paint {
-                    imageFilter = shadowInfo.getDropShadowImageFilterOnly()
-                })
-            }
-        })
-    }
-
     override fun autoSize(): FloatSize {
         return FloatSize(rRect.width, rRect.height).add(padding.size())
+    }
+
+    override fun shapeShadowDraw(): Draw = buildDraw {
+        shadowInfo?.let {
+            saveBlock({
+                translate(padding.left, padding.top)
+                clipPath(path, ClipMode.DIFFERENCE, antiAlias = true)
+            }) {
+                drawPath(path, paint {
+                    imageFilter = it.getDropShadowImageFilterOnly()
+                })
+            }
+        }
+    }
+
+    override fun path(): Path {
+        return Path().addRRect(rRect)
     }
 }

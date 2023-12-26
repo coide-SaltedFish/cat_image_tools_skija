@@ -104,18 +104,16 @@ fun main() {
 
         blurBackground(5f)
 
-        add(RectElement(10, 10, Color.BLACK).apply {
+        add(RectElement(30, 20, Color.BLUE.colorCopy(a = 20)).apply {
             padding = FloatRectSize(10f, 10f, 10f, 10f)
 
-            shadow(ShadowInfo(2f, 2f, 5f, Color.BLACK))
+            shadowInfo = ShadowInfo(2f, 2f, 5f, Color.YELLOW)
         })
 
-        add(ArcElement(Rect.makeWH(20f, 50f), 0f, 90f, false){
+        add(ArcElement(Rect.makeWH(20f, 50f), 0f, 90f, false, shadowInfo = ShadowInfo(2f, 2f, 1f, Color.BLACK)){
             color = Color.BLUE
         }.apply {
             padding = FloatRectSize(10f, 10f, 10f, 10f)
-
-            shadow(ShadowInfo(2f, 2f, 1f, Color.BLACK))
         })
         add(ArcElement(Rect.makeWH(20f, 50f), 0f, 90f, true){
             color = Color.RED
@@ -123,20 +121,16 @@ fun main() {
             padding = FloatRectSize(10f, 10f, 0f, 0f)
         })
 
-        add(ArcElement.circular(30f){
+        add(ArcElement.circular(30f, shadowInfo = ShadowInfo(2f, 2f, 5f, Color.BLACK)){
             color = Color.GREEN
         }.apply {
             padding = FloatRectSize(10f, 10f, 10f, 10f)
-
-            shadow(ShadowInfo(2f, 2f, 5f, Color.BLACK))
         })
 
-        add(ArcElement.circular(30f){
+        add(ArcElement.circular(30f, shadowInfo = ShadowInfo(2f, 2f, 5f, Color.BLACK)){
             color = Color.BLACK.colorCopy(a = 10)
         }.apply {
             padding = FloatRectSize(10f, 10f, 10f, 10f)
-            // TODO 实现形状阴影通用接口
-            shadow(ShadowInfo(2f, 2f, 5f, Color.BLACK))
         })
 
         add(RRectElement(100f, 50f, 5f, 8f){
@@ -144,7 +138,7 @@ fun main() {
         }.apply {
             padding = FloatRectSize(10)
 
-            shadow(ShadowInfo(2, 5, Color.BLACK))
+            shadowInfo = ShadowInfo(2, 5, Color.BLACK)
         })
 
         rRectShape(blRad = 20, brRad = 20, antiAlias = true, stroke = true)
@@ -167,6 +161,12 @@ fun main() {
     val image = Surface.makeRasterN32Premul(absoluteLayout.size.width.toInt(), absoluteLayout.size.height.toInt())
 
     absoluteLayout.draw(ElementDrawContext(image))
+
+//    image.canvas.drawPath(Path().apply {
+//        arcTo(Rect(200f, 200f, 400f, 400f), 520f, 181f, true)
+//    }, paint {
+//        color = Color.RED
+//    })
 
     val time = System.currentTimeMillis() - startTime
     println("耗时：$time ms")

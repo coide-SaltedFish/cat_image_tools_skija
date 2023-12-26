@@ -1,5 +1,8 @@
 package element.elements
 
+import draw.Draw
+import draw.effect.Shape
+import draw.effect.ShapeShadow
 import draw.utils.buildDraw
 import element.AbstractElement
 import element.measure.ShadowInfo
@@ -20,46 +23,54 @@ class ArcElement(
     var startAngle: Float,
     var sweepAngle: Float,
     var includeCenter: Boolean, // 决定两个端点是相互连接还是各自和圆心连接
+    override var shadowInfo: ShadowInfo? = null,
     var paintBuilder: Paint.() -> Unit = {}
-): AbstractElement() {
+): AbstractElement(), ShapeShadow {
+
+    private val path: Path get() = path()
+    private val realSweepAngle: Float get() = minOf(359.9f, sweepAngle) // 计算正确的旋转角度
+
     companion object{
         /**
          * 构建一个圆形
          */
-        fun circular(radius: Float, paintBuilder: Paint.() -> Unit = {}) = ArcElement(Rect.makeWH(radius * 2, radius * 2), 0f, 360f, false, paintBuilder)
+        fun circular(radius: Float, shadowInfo: ShadowInfo? = null, paintBuilder: Paint.() -> Unit = {}) = ArcElement(Rect.makeWH(radius * 2, radius * 2), 0f, 360f, false, shadowInfo, paintBuilder)
     }
 
     init {
+        beforeDrawChain.plus(shapeShadowDraw())
+
         elementDraw = buildDraw {
             saveBlock({
-                clipRect(Rect.makeXYWH(padding.left, padding.top, size.width - padding.width, size.height - padding.height))
-                translate(padding.left, padding.top)
+                val size = size.minus(padding.size())
+                clipRect(Rect.makeXYWH(padding.left, padding.top, size.width, size.height))
             }) {
-                drawArc(oval.left, oval.top, oval.right, oval.bottom, startAngle, sweepAngle, includeCenter, buildPaint())
+                drawPath(path, buildPaint())
             }
         }
-    }
-
-    /**
-     * 阴影绘制
-     */
-    fun shadow(shadowInfo: ShadowInfo){
-        beforeDrawChain.plus(buildDraw {
-            saveBlock({
-                val oval = Rect.makeXYWH(padding.left, padding.top, oval.width, oval.height)
-                clipPath(Path().arcTo(oval, startAngle, minOf(359f, sweepAngle), includeCenter), ClipMode.DIFFERENCE, antiAlias = true)
-                translate(padding.left, padding.top)
-            }) {
-                drawArc(oval.left, oval.top, oval.right, oval.bottom, startAngle, minOf(359f, sweepAngle), includeCenter, paint {
-                    imageFilter = shadowInfo.getDropShadowImageFilterOnly()
-                })
-            }
-        })
     }
 
     private fun buildPaint() = paint(paintBuilder)
 
     override fun autoSize(): FloatSize {
         return oval.size().add(padding.size())
+    }
+
+    override fun shapeShadowDraw(): Draw = buildDraw {
+        shadowInfo?.let {
+            saveBlock({
+                clipPath(path, ClipMode.DIFFERENCE, antiAlias = true)
+            }) {
+                drawPath(path, paint {
+                    imageFilter = it.getDropShadowImageFilterOnly()
+                })
+            }
+        }
+    }
+
+    override fun path(): Path {
+        return Path().apply {
+            arcTo(Rect.makeXYWH(padding.left, padding.top, oval.width, oval.height), startAngle, realSweepAngle, includeCenter)
+        }
     }
 }
