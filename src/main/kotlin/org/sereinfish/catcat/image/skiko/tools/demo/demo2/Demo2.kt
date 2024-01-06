@@ -24,6 +24,7 @@ import org.sereinfish.catcat.image.skiko.tools.utils.*
  * 示例2
  *
  * 构建一个简单的签到卡片
+ * 可能会有一些难以理解为什么这样的代码，这是为了方便理解，绝对不是因为写了使山代码我懒得改
  */
 fun main() {
     val imageFile = Image.makeFromEncoded("./src/main/kotlin/org/sereinfish/catcat/image/skiko/tools/demo/src/image/p_114750072.png")

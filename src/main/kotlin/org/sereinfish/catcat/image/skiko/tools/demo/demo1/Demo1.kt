@@ -56,14 +56,14 @@ fun main() {
         ) {
             BOTTOM and RIGHT place text(text = "底部靠右")
 
-            text(text = "居中") place CENTER
+            text(text = "居中") on CENTER
 
             text(
                 modifier = Modifier<TextElement>()
                     .alignment(CENTER)
                     .border(color = Color.RED),
                 text = "[10, 150]"
-            ) place p[10, 150]
+            ) on p[10, 150]
 
             offset(10, 50) place text(text = "[10, 50]")
 

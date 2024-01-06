@@ -30,6 +30,7 @@ class RectElement(
 
         elementDraw = buildDraw {
             saveBlock({
+                val size = size.copy().minus(padding.size())
                 translate(padding.left, padding.top)
                 clipRect(Rect.makeWH(size.width, size.height))
             }) {

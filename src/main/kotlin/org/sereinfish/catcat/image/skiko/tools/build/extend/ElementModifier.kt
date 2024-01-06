@@ -105,6 +105,13 @@ fun <T: AbstractElement> Modifier<T>.padding(
     padding = FloatRectSize(left.toFloat(), right.toFloat(), top.toFloat(), bottom.toFloat())
 }
 
+fun <T: AbstractElement> Modifier<T>.padding(
+    lr: Number = 0f,
+    tb: Number = 0f,
+) = modifier {
+    padding = FloatRectSize(lr.toFloat(), lr.toFloat(), tb.toFloat(), tb.toFloat())
+}
+
 /**
  * 元素边框
  */

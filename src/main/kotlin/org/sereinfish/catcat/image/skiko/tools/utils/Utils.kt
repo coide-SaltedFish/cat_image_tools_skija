@@ -43,6 +43,17 @@ inline fun <T> Iterable<T>.forEachWithSeparator(separator: (T) -> Unit = {}, act
     }
 }
 
+inline fun <T> Array<T>.forEachWithSeparator(separator: (T) -> Unit = {}, action: (T) -> Unit){
+    val iterator = this.iterator()
+    while (iterator.hasNext()) {
+        val value = iterator.next()
+        action(value)
+        if (iterator.hasNext()) {
+            separator(value)
+        }
+    }
+}
+
 /**
  * 增强版forEach
  * 满足指定条件时提前结束遍历

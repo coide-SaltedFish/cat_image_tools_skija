@@ -42,6 +42,10 @@ class AbsoluteLayoutSubElementBuilder: AbsoluteLayout() {
         add(element, OffsetInfo())
     }
 
+    infix fun Element.on(builder: AbsoluteLayoutSubElementBuilder) {
+        add(this, OffsetInfo())
+    }
+
     /**
      * 添加子元素到指定位置
      */
@@ -49,7 +53,7 @@ class AbsoluteLayoutSubElementBuilder: AbsoluteLayout() {
         add(element, OffsetInfo(this))
     }
 
-    infix fun Element.place(offset: FloatOffset) {
+    infix fun Element.on(offset: FloatOffset) {
         add(this, OffsetInfo(offset))
     }
 
@@ -57,7 +61,7 @@ class AbsoluteLayoutSubElementBuilder: AbsoluteLayout() {
         add(element, OffsetInfo(alignment = this))
     }
 
-    infix fun Element.place(alignment: Alignment) {
+    infix fun Element.on(alignment: Alignment) {
         add(this, OffsetInfo(alignment = alignment))
     }
 }

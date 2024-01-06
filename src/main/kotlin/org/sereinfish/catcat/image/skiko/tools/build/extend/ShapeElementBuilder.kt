@@ -1,9 +1,6 @@
 package org.sereinfish.catcat.image.skiko.tools.build.extend
 
-import org.jetbrains.skia.Paint
-import org.jetbrains.skia.Path
-import org.jetbrains.skia.RRect
-import org.jetbrains.skia.Rect
+import org.jetbrains.skia.*
 import org.sereinfish.catcat.image.skiko.tools.build.modifier.Modifier
 import org.sereinfish.catcat.image.skiko.tools.element.Layout
 import org.sereinfish.catcat.image.skiko.tools.element.elements.ArcElement
@@ -35,9 +32,9 @@ fun Layout.shape(
  */
 fun Layout.rect(
     modifier: Modifier<RectElement> = Modifier(),
-    width: Number,
-    height: Number,
-    color: Int,
+    width: Number = 10,
+    height: Number = 10,
+    color: Int = Color.RED,
     shadowInfo: ShadowInfo? = null,
     paintBuilder: Paint.(element: RectElement) -> Unit = {},
     block: RectElement.() -> Unit = {}
@@ -49,8 +46,8 @@ fun Layout.rect(
 
 fun Layout.rect(
     modifier: Modifier<RectElement> = Modifier(),
-    size: FloatSize,
-    color: Int,
+    size: FloatSize = FloatSize(10, 10),
+    color: Int = Color.RED,
     shadowInfo: ShadowInfo? = null,
     paintBuilder: Paint.(element: RectElement) -> Unit = {},
     block: RectElement.() -> Unit = {}

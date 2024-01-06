@@ -34,6 +34,21 @@ fun Layout.text(
 fun Layout.text(
     modifier: Modifier<TextElement>? = null,
     text: String,
+    typeface: Typeface = Typeface.makeDefault(),
+    fontSize: Number = 18,
+    color: Int = Color.BLACK, // 字体颜色
+    wordSpace: Number = 0f, // 字间距
+    shadow: ShadowInfo? = null, // 文字阴影
+    alignment: Alignment = Alignment.LEFT.and(Alignment.CENTER_VERTICAL), // 对齐方式
+    paint: (Paint.() -> Unit)? = null, // 画笔构建
+    block: TextElement.() -> Unit = {}
+): TextElement {
+    return text(modifier, text, color, wordSpace, Font(typeface, fontSize.toFloat()), shadow, alignment, paint, block)
+}
+
+fun Layout.text(
+    modifier: Modifier<TextElement>? = null,
+    text: String,
     fontName: String = "黑体",
     fontStyle: FontStyle = FontStyle.NORMAL,
     fontSize: Number = 18,
