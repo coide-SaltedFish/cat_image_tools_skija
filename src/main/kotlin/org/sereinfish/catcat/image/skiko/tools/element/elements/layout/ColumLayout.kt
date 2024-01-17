@@ -2,6 +2,7 @@ package org.sereinfish.catcat.image.skiko.tools.element.elements.layout
 
 import org.sereinfish.catcat.image.skiko.tools.element.AbstractLayout
 import org.sereinfish.catcat.image.skiko.tools.element.Element
+import org.sereinfish.catcat.image.skiko.tools.element.WeightLayout
 import org.sereinfish.catcat.image.skiko.tools.element.measure.ElementSizeMode
 import org.sereinfish.catcat.image.skiko.tools.element.measure.alignment.Alignment
 import org.sereinfish.catcat.image.skiko.tools.element.measure.alignment.AlignmentLayout
@@ -15,7 +16,7 @@ import org.sereinfish.catcat.image.skiko.tools.utils.forEachOrEnd
  */
 class ColumLayout(
     override var alignment: Alignment = Alignment.LEFT.and(Alignment.TOP),
-): AbstractLayout(), AlignmentLayout {
+): AbstractLayout(), AlignmentLayout, WeightLayout {
 
     /**
      * 自动大小
@@ -41,6 +42,11 @@ class ColumLayout(
         }
 
         return y
+    }
+
+    override fun updateElementInfo() {
+        super<WeightLayout>.updateElementInfo()
+        super<AbstractLayout>.updateElementInfo()
     }
 
     /**
@@ -79,10 +85,13 @@ class ColumLayout(
             size.minus(it.size.copy(width = 0f))
         }
 
-
         // 当布局为自动时，不支持最大化子元素
         if (sizeMode.contain(ElementSizeMode.AutoHeight))
             size.height = 0f
+
+        if (element.sizeMode.contain(ElementSizeMode.MaxHeight) && weightSum != 0f){
+            size.height = subElementWeightSize(element).height
+        }
 
         return size.nonNegativeValue()
     }

@@ -19,6 +19,14 @@ open class Context(
         context[key] = value
     }
 
+    inline fun <reified T> getOrElse(key: String, default: () -> T): T = (get(key) as? T) ?: run {
+        default().also {
+            set(key, it)
+        }
+    }
+
+    inline fun <reified T> getOrDefault(key: String, default: T): T = (get(key) as? T) ?: default
+
     inline fun <reified T> value() = ContextProperty<T>(this, T::class.java)
     inline fun <reified T> valueOrNull() = ContextPropertyOrNull<T>(this, T::class.java)
     inline fun <reified T> valueOrDefault(default: T) = ContextPropertyOrDefault(this, default, T::class.java)

@@ -19,10 +19,11 @@ fun Layout.text(
     font: Font = Font(Typeface.makeFromName("黑体", FontStyle.NORMAL), 18f), // 字体,
     shadow: ShadowInfo? = null, // 文字阴影
     alignment: Alignment = Alignment.LEFT.and(Alignment.CENTER_VERTICAL), // 对齐方式
+    isTextCompact: Boolean = false,
     paint: (Paint.() -> Unit)? = null, // 画笔构建
     block: TextElement.() -> Unit = {}
 ): TextElement {
-    val textElement = TextElement(text, font = font, color = color, wordSpace = wordSpace.toFloat(), shadow = shadow, alignment = alignment, paintBuilder = paint)
+    val textElement = TextElement(text, font = font, color = color, wordSpace = wordSpace.toFloat(), shadow = shadow, alignment = alignment, paintBuilder = paint, isTextCompact = isTextCompact)
     modifier?.modifier(textElement)
     textElement.block()
 
@@ -40,10 +41,11 @@ fun Layout.text(
     wordSpace: Number = 0f, // 字间距
     shadow: ShadowInfo? = null, // 文字阴影
     alignment: Alignment = Alignment.LEFT.and(Alignment.CENTER_VERTICAL), // 对齐方式
+    isTextCompact: Boolean = false,
     paint: (Paint.() -> Unit)? = null, // 画笔构建
     block: TextElement.() -> Unit = {}
 ): TextElement {
-    return text(modifier, text, color, wordSpace, Font(typeface, fontSize.toFloat()), shadow, alignment, paint, block)
+    return text(modifier, text, color, wordSpace, Font(typeface, fontSize.toFloat()), shadow, alignment, isTextCompact, paint, block)
 }
 
 fun Layout.text(
@@ -56,8 +58,9 @@ fun Layout.text(
     wordSpace: Number = 0f, // 字间距
     shadow: ShadowInfo? = null, // 文字阴影
     alignment: Alignment = Alignment.LEFT.and(Alignment.CENTER_VERTICAL), // 对齐方式
+    isTextCompact: Boolean = false,
     paint: (Paint.() -> Unit)? = null, // 画笔构建
     block: TextElement.() -> Unit = {}
 ): TextElement {
-    return text(modifier, text, color, wordSpace, Font(Typeface.makeFromName(fontName, fontStyle), fontSize.toFloat()), shadow, alignment, paint, block)
+    return text(modifier, text, color, wordSpace, Font(Typeface.makeFromName(fontName, fontStyle), fontSize.toFloat()), shadow, alignment, isTextCompact, paint, block)
 }

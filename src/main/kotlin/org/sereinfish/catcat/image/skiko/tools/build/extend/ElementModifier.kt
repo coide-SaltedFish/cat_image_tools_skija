@@ -11,7 +11,6 @@ import org.sereinfish.catcat.image.skiko.tools.element.measure.CropMode
 import org.sereinfish.catcat.image.skiko.tools.element.measure.ElementSizeMode
 import org.sereinfish.catcat.image.skiko.tools.element.measure.size.FloatRectSize
 import org.jetbrains.skia.*
-import org.sereinfish.catcat.image.skiko.tools.A
 import org.sereinfish.catcat.image.skiko.tools.draw.effect.arcShape
 import org.sereinfish.catcat.image.skiko.tools.draw.effect.circularShape
 import org.sereinfish.catcat.image.skiko.tools.draw.effect.rRectShape

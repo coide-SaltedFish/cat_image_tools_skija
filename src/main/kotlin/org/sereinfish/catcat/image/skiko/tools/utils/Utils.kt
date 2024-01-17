@@ -79,6 +79,15 @@ inline fun <T> LinkedHashSet<T>.sumOf(selector: (T) -> Float): Float {
     return sum
 }
 
+inline fun <T> LinkedHashSet<T>.sumSizeOf(selector: (T) -> FloatSize): FloatSize {
+    val sum = FloatSize()
+    for (element in this) {
+        sum.add(selector(element))
+    }
+    return sum
+}
+
+
 inline fun <T> LinkedHashSet<T>.sumOrEnd(endFunc: (T) -> Boolean, selector: (T) -> Float): Float {
     var sum = 0f
     for (element in this) {

@@ -2,6 +2,7 @@ package org.sereinfish.catcat.image.skiko.tools.element.elements.layout
 
 import org.sereinfish.catcat.image.skiko.tools.element.AbstractLayout
 import org.sereinfish.catcat.image.skiko.tools.element.Element
+import org.sereinfish.catcat.image.skiko.tools.element.WeightLayout
 import org.sereinfish.catcat.image.skiko.tools.element.measure.ElementSizeMode
 import org.sereinfish.catcat.image.skiko.tools.element.measure.alignment.Alignment
 import org.sereinfish.catcat.image.skiko.tools.element.measure.alignment.AlignmentLayout
@@ -12,7 +13,7 @@ import org.sereinfish.catcat.image.skiko.tools.utils.sumOrEnd
 
 class RowLayout(
     override var alignment: Alignment = Alignment.LEFT
-): AbstractLayout(), AlignmentLayout {
+): AbstractLayout(), AlignmentLayout, WeightLayout {
 
     override fun autoSize(): FloatSize {
         return FloatSize().apply {
@@ -22,6 +23,11 @@ class RowLayout(
                 height = maxOf(subSize.height, height)
             }
         }.add(padding.size())
+    }
+
+    override fun updateElementInfo() {
+        super<WeightLayout>.updateElementInfo()
+        super<AbstractLayout>.updateElementInfo()
     }
 
     override fun subElementOffset(element: Element): FloatOffset {
@@ -61,9 +67,12 @@ class RowLayout(
         if (sizeMode.contain(ElementSizeMode.AutoWidth))
             size.width = 0f
 
-
         if (sizeMode.contain(ElementSizeMode.AutoHeight))
             size.height = this.size.height - padding.size().height
+
+        if (element.sizeMode.contain(ElementSizeMode.MaxWidth) && weightSum != 0f){
+            size.width = subElementWeightSize(element).width
+        }
 
         return size.nonNegativeValue()
     }

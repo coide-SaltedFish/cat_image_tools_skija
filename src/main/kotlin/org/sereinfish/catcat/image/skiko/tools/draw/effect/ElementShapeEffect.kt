@@ -1,15 +1,12 @@
 package org.sereinfish.catcat.image.skiko.tools.draw.effect
 
+import org.jetbrains.skia.*
 import org.sereinfish.catcat.image.skiko.tools.draw.utils.buildDraw
 import org.sereinfish.catcat.image.skiko.tools.element.AbstractElement
 import org.sereinfish.catcat.image.skiko.tools.element.measure.ShadowInfo
-import org.jetbrains.skia.*
-import org.sereinfish.catcat.image.skiko.tools.A
-import org.sereinfish.catcat.image.skiko.tools.element.Element
 import org.sereinfish.catcat.image.skiko.tools.element.measure.size.FloatRectSize
 import org.sereinfish.catcat.image.skiko.tools.utils.paint
 import org.sereinfish.catcat.image.skiko.tools.utils.saveBlock
-
 
 
 /**

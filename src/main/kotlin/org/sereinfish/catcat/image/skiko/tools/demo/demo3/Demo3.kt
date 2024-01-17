@@ -68,7 +68,7 @@ private fun ColumLayout.item(
     layout.text(
         modifier = Modifier<TextElement>(),
         text = text,
-        wordSpace = 1f,
+        wordSpace = 8f,
         typeface = Typeface.makeFromFile("./src/main/kotlin/org/sereinfish/catcat/image/skiko/tools/demo/src/font/MiSans-Normal.ttf"),
         fontSize = 52
     )

@@ -189,7 +189,7 @@ private fun Layout.userNameInfo(
         text = name,
         fontStyle = FontStyle.ITALIC,
         fontSize = 43,
-        wordSpace = 2,
+        wordSpace = 8,
         shadow = ShadowInfo(3, 1, Color.BLACK.colorCopy(a = 120))
     )
     colum(modifier = Modifier<ColumLayout>().size(20))
@@ -197,7 +197,9 @@ private fun Layout.userNameInfo(
         modifier = Modifier<TextElement>()
             .padding(2),
         text = desc,
+        typeface = Typeface.makeFromName("微软雅黑", FontStyle.NORMAL),
         fontSize = 20,
+        wordSpace = 3,
         color = Color.makeRGB(100, 100, 100),
         shadow = ShadowInfo(0, 1, Color.BLACK.colorCopy(a = 120))
     )

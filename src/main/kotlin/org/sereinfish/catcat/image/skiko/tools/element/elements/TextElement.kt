@@ -25,8 +25,8 @@ class TextElement(
     var color: Int = Color.BLACK, // 字体颜色
     var shadow: ShadowInfo? = null, // 文字阴影
     override var alignment: Alignment = Alignment.LEFT.and(Alignment.CENTER_VERTICAL), // 对齐方式
-    var paintBuilder: (Paint.() -> Unit)? = null // 画笔构建
-
+    var paintBuilder: (Paint.() -> Unit)? = null, // 画笔构建
+    var isTextCompact: Boolean = false // 紧凑绘制文本
 ) : AbstractElement(), AlignmentLayout {
 
     private val paint: Paint get() = buildPaint() // 获取实时构建的 Paint
@@ -56,9 +56,13 @@ class TextElement(
     private fun getTextDrawOffset(): FloatOffset {
         val rect = font.measureText(text, paint)
 
-        val offset = alignment(size.copy().minus(padding.size()), getTextDrawSize())
+        val offset = alignment(size.copy().minus(padding.size()), getTextDrawSize()).apply {
+            if (isTextCompact)
+                x -= rect.left
+            y -= rect.top
+        }
 
-        return FloatOffset(- rect.left, - rect.top).add(offset)
+        return offset
     }
 
     /**
@@ -78,19 +82,15 @@ class TextElement(
      */
     private fun getIndexCharSize(i: Int): Float {
         val rect = getWordDrawRectSize(text[i])
-        var w = rect.width
-        if (i > 0){
-            w += wordSpace + rect.left
-        }
 
-        return w
+        return rect.width + wordSpace + rect.left
     }
 
     /**
      * 获取单个字符大小
      */
     private fun getWordDrawRectSize(c: Char): Rect {
-        if (c == ' ') return font.measureText("n", paint)
+        if (c == ' ') return Rect.makeWH(font.metrics.maxCharWidth, font.metrics.height)
 
         return font.measureText("$c", paint)
     }
