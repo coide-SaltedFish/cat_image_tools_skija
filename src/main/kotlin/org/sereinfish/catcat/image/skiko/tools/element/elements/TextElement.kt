@@ -90,7 +90,7 @@ class TextElement(
      * 获取单个字符大小
      */
     private fun getWordDrawRectSize(c: Char): Rect {
-        if (c == ' ') return Rect.makeWH(font.metrics.maxCharWidth, font.metrics.height)
+        if (c == ' ') return font.measureText("X", paint)
 
         return font.measureText("$c", paint)
     }

@@ -45,6 +45,7 @@ fun main() {
         abs(
             modifier = Modifier<AbsoluteLayout>()
                 .size(200)
+                .padding(10)
                 .rRectShape(
                     10,
                     stroke = true,

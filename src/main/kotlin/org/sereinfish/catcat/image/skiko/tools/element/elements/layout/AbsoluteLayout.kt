@@ -49,7 +49,7 @@ open class AbsoluteLayout: AbstractLayout(), AlignmentLayout {
     override fun subElementOffset(element: Element): FloatOffset {
         return subElementOffsetInfo[element]?.let { info ->
             info.alignment?.let {
-                alignment(it, size, element.size)
+                alignment(it, size.copy().minus(padding.size()), element.size)
             } ?: info.offset
         } ?: FloatOffset()
     }
