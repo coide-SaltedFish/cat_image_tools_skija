@@ -83,14 +83,15 @@ interface CropLayout {
             }
             Inside -> {
                 // 如果图片整体小于容器，则居中返回
-                if (dst.width <= src.width && dst.height <= src.height){
+                if (dst.width >= src.width && dst.height >= src.height){
                     return Rect.makeXYWH(
                         (src.width - dst.width) / 2,
                         (src.height - dst.height) / 2,
                         dst.width, dst.height
                     ) to dst.rect()
                 }
-                val scale = minOf(widthScale, heightScale)
+
+                val scale = maxOf(widthScale, heightScale)
                 return Rect.makeXYWH(
                     (src.width - dst.width * scale) / 2,
                     (src.height - dst.height * scale) / 2,
