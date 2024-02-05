@@ -20,7 +20,6 @@ fun main() {
             .padding(50)
             .background(Color.WHITE)
     ) {
-
         row(
             Modifier<RowLayout>()
                 .maxWidth()

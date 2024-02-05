@@ -13,12 +13,21 @@ import org.sereinfish.catcat.image.skiko.tools.element.measure.CropMode
 import org.sereinfish.catcat.image.skiko.tools.utils.forEachWithSeparator
 import org.sereinfish.catcat.image.skiko.tools.utils.makeFromEncoded
 import org.sereinfish.catcat.image.skiko.tools.utils.save
+import org.sereinfish.catcat.image.skiko.tools.utils.size
 
 /**
  * 图片裁剪示例
  */
 fun main() {
-    val imageFile = Image.makeFromEncoded("./src/main/kotlin/org/sereinfish/catcat/image/skiko/tools/demo/src/image/p_106009822.jpg")
+    val imageFile = Image.makeFromEncoded("./src/main/kotlin/org/sereinfish/catcat/image/skiko/tools/demo/src/image/p_106009822.jpg").let {
+        buildImageColumLayout {
+            image(
+                modifier = Modifier<ImageElement>()
+                    .size(it.size() * 0.3),
+                image = it
+            )
+        }
+    }
 
     buildImageColumLayout(
         modifier = Modifier<ColumLayout>()

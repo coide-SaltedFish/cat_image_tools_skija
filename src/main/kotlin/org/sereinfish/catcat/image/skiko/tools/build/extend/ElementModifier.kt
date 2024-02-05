@@ -19,6 +19,7 @@ import org.sereinfish.catcat.image.skiko.tools.draw.utils.buildDraw
 import org.sereinfish.catcat.image.skiko.tools.element.measure.ShadowInfo
 import org.sereinfish.catcat.image.skiko.tools.element.measure.alignment.Alignment
 import org.sereinfish.catcat.image.skiko.tools.element.measure.offset.FloatOffset
+import org.sereinfish.catcat.image.skiko.tools.element.measure.size.FloatSize
 
 /**
  * 元素背景颜色
@@ -75,6 +76,10 @@ fun <T: Element> Modifier<T>.size(width: Number, height: Number) = modifier {
 }
 
 fun <T: Element> Modifier<T>.size(value: Number) = size(value, value)
+fun <T: Element> Modifier<T>.size(value: FloatSize) = modifier {
+    sizeMode = ElementSizeMode.Value
+    size = value
+}
 
 fun <T: Element> Modifier<T>.maxSize() = modifier {
     sizeMode = ElementSizeMode.MaxFill

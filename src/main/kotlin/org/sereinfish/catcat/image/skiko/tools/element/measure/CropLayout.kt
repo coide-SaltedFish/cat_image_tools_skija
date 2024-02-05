@@ -98,7 +98,7 @@ interface CropLayout {
                     dst.width * scale, dst.height * scale
                 ) to dst.rect()
             }
-            None -> return src.rect() to dst.rect()
+            None -> return src.rect() to src.rect()
         }
     }
 }
