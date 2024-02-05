@@ -35,9 +35,10 @@ fun <T: Element> Modifier<T>.background(
     image: Image,
     samplingMode: SamplingMode = SamplingMode.DEFAULT, // 图片采样模式
     cropMode: CropMode = CropMode.Fit,
+    alignment: Alignment = Alignment.CENTER,
     paintBuilder: Paint.() -> Unit = {}, // 构建 Paint
 ) = modifier {
-    beforeDrawChain.plus(ElementImageDraw(size, image, samplingMode, cropMode, Alignment.CENTER, paintBuilder))
+    beforeDrawChain.plus(ElementImageDraw(size, image, samplingMode, cropMode, alignment, paintBuilder))
 }
 
 /**
