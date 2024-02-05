@@ -145,6 +145,11 @@ fun Image.save(f: File, format: EncodedImageFormat = PNG, quality: Int = 100): F
 
 fun Image.save(path: String, format: EncodedImageFormat = PNG, quality: Int = 100) = save(File(path), format, quality)
 
+fun Image.bytes(format: EncodedImageFormat = PNG, quality: Int = 100) =
+    encodeToData(format, quality)!!.bytes
+
+fun Image.inputStream(format: EncodedImageFormat = PNG, quality: Int = 100) =
+    encodeToData(format, quality)!!.bytes.inputStream()
 /**
  * 内边距
  */
