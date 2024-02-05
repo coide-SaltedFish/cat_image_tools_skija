@@ -23,12 +23,12 @@ class ElementImageDraw(
     var paintBuilder: Paint.() -> Unit = {}, // 构建 Paint
 ): Draw, CropLayout, AlignmentLayout {
     override fun draw(canvas: Canvas, context: Context) {
-        val pos = crop(layoutSize, image.size())
-        val offset = alignment(image.size(), pos.size())
+        val (srcRect, dstRect) = crop(layoutSize, image.size())
+        val offset = alignment(image.size(), srcRect.size())
         canvas.drawImageRect(
             image,
-            Rect.makeXYWH(offset.x, offset.y, pos.width, pos.height),
-            layoutSize.copy().rect(),
+            Rect.makeXYWH(offset.x, offset.y, srcRect.width, srcRect.height),
+            dstRect,
             samplingMode,
             paint(paintBuilder),
             true

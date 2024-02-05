@@ -15,9 +15,9 @@ interface CropLayout {
 
     /**
      * 输入容器和元素大小
-     * 输入图片大小、目标大小，输出需要在图片上裁剪的区域 Rect
+     * 输入图片大小、目标大小，输出需要在图片上裁剪的区域 Rect, 绘制在目标区域的 Rect
      */
-    fun crop(src: FloatSize, dst: FloatSize): Rect {
+    fun crop(src: FloatSize, dst: FloatSize): Pair<Rect, Rect> {
         // 计算宽高的缩放比例
         val widthScale = src.width / dst.width
         val heightScale = src.height / dst.height
@@ -30,7 +30,7 @@ interface CropLayout {
                     (src.width - dst.width * scale) / 2,
                     (src.height - dst.height * scale) / 2,
                     dst.width * scale, dst.height * scale
-                )
+                ) to dst.rect()
             }
 
             FitFill -> {
@@ -40,7 +40,7 @@ interface CropLayout {
                     (src.width - dst.width * scale) / 2,
                     (src.height - dst.height * scale) / 2,
                     dst.width * scale, dst.height * scale
-                )
+                ) to dst.rect()
             }
 
             Crop -> {
@@ -50,7 +50,7 @@ interface CropLayout {
                         (src.width - dst.width) / 2,
                         (src.height - dst.height) / 2,
                         dst.width, dst.height
-                    )
+                    ) to dst.rect()
                 }
                 // 找到缩放比例高的一边
                 val scale = maxOf(widthScale, heightScale)
@@ -59,7 +59,7 @@ interface CropLayout {
                     (dst.width - src.width * scale) / 2,
                     (dst.height - src.height * scale) / 2,
                     src.width, src.height
-                )
+                ) to dst.rect()
             }
 
             FillHeight -> {
@@ -67,19 +67,19 @@ interface CropLayout {
                     (src.width - dst.width * heightScale) / 2,
                     (src.height - dst.height * heightScale) / 2,
                     dst.width * heightScale, dst.height * heightScale
-                )
+                ) to dst.rect()
             }
             FillWidth -> {
                 return Rect.makeXYWH(
                     (src.width - dst.width * widthScale) / 2,
                     (src.height - dst.height * widthScale) / 2,
                     dst.width * widthScale, dst.height * widthScale
-                )
+                ) to dst.rect()
             }
             FillBounds -> {
                 return Rect.makeXYWH(
                     0f, 0f, dst.width * widthScale, dst.height * heightScale
-                )
+                ) to dst.rect()
             }
             Inside -> {
                 // 如果图片整体小于容器，则居中返回
@@ -88,16 +88,16 @@ interface CropLayout {
                         (src.width - dst.width) / 2,
                         (src.height - dst.height) / 2,
                         dst.width, dst.height
-                    )
+                    ) to dst.rect()
                 }
                 val scale = minOf(widthScale, heightScale)
                 return Rect.makeXYWH(
                     (src.width - dst.width * scale) / 2,
                     (src.height - dst.height * scale) / 2,
                     dst.width * scale, dst.height * scale
-                )
+                ) to dst.rect()
             }
-            None -> return Rect.makeXYWH(0f, 0f, dst.width, dst.height)
+            None -> return src.rect() to dst.rect()
         }
     }
 }

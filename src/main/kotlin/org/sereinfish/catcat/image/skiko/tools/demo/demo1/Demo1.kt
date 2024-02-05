@@ -39,7 +39,7 @@ fun main() {
             image = imageFile,
             cropMode = CropMode.FillWidth,
             samplingMode = SamplingMode.CATMULL_ROM,
-            alignment = Alignment.BOTTOM
+            alignment = Alignment.TOP
         )
 
         abs(
@@ -80,10 +80,11 @@ fun main() {
 
         image(
             modifier = Modifier<ImageElement>()
-                .padding(5f)
+                .padding(10f)
                 .size(100)
                 .imageShadow(2f, 5f, Color.BLACK)
-                .imageBlur(1f),
+                .imageBlur(1f)
+                .border(),
             image = imageFile,
         )
 

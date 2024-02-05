@@ -32,28 +32,31 @@ class ImageElement(
     init {
         elementDraw = buildDraw { context ->
             saveBlock({
-                translate(padding.left, padding.top)
                 clipRect(Rect.makeWH(size.width, size.height))
+                translate(padding.left, padding.top)
             }) {
-                val pos = crop(image.size(), size.copy().minus(padding.size()))
+                val (srcRect, dstRect) = crop(image.size(), size.copy().minus(padding.size()))
 
                 // 计算截取的区域
-                val offset = alignment(image.size(), pos.size()).add(offset)
+                val offset = alignment(image.size(), srcRect.size()).add(offset)
 
-                imageShadowInfo?.let {
-                    drawRect(size.copy().minus(padding.size()).rect(), paint {
-                        imageFilter = it.getDropShadowImageFilterOnly()
-                    })
+                saveBlock({
+                    clipRect(dstRect, ClipMode.DIFFERENCE)
+                }) {
+                    imageShadowInfo?.let {
+                        drawRect(size.copy().minus(padding.size()).rect(), paint {
+                            imageFilter = it.getDropShadowImageFilterOnly()
+                        })
+                    }
                 }
                 saveBlock({
-                    translate(padding.left, padding.top)
                     clipRect(size.copy().minus(padding.size()).rect())
                 }) {
 
                     drawImageRect(
                         image,
-                        Rect.makeXYWH(offset.x, offset.y, pos.width, pos.height),
-                        size.copy().minus(padding.size()).rect(),
+                        Rect.makeXYWH(offset.x, offset.y, srcRect.width, srcRect.height),
+                        dstRect,
                         samplingMode,
                         buildPaint(),
                         true
