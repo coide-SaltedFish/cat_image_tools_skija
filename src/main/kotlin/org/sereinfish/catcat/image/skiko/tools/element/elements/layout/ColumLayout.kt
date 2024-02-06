@@ -10,6 +10,8 @@ import org.sereinfish.catcat.image.skiko.tools.element.measure.alignment.and
 import org.sereinfish.catcat.image.skiko.tools.element.measure.offset.FloatOffset
 import org.sereinfish.catcat.image.skiko.tools.element.measure.size.FloatSize
 import org.sereinfish.catcat.image.skiko.tools.utils.forEachOrEnd
+import org.sereinfish.catcat.image.skiko.tools.utils.sumOf
+import org.sereinfish.catcat.image.skiko.tools.utils.sumOrEnd
 
 /**
  * 垂直布局
@@ -34,15 +36,10 @@ class ColumLayout(
     /**
      * 获取子元素Y坐标
      */
-    private fun getSubElementY(element: Element): Float {
-        var y = 0f
-
-        subElements.forEachOrEnd({ it == element }){
-            y += it.size().height
+    private fun getSubElementY(element: Element): Float =
+        subElements.sumOrEnd({ it == element }){
+            it.size().height
         }
-
-        return y
-    }
 
     override fun updateElementInfo() {
         super<WeightLayout>.updateElementInfo()

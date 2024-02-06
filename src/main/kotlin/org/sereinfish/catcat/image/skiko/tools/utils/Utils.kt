@@ -99,6 +99,14 @@ inline fun <T> LinkedHashSet<T>.sumOrEnd(endFunc: (T) -> Boolean, selector: (T) 
     return sum
 }
 
+inline fun <T> Iterable<T>.sumOrEnd(endFunc: (T) -> Boolean, selector: (T) -> Number): Number {
+    var sum = 0f
+    forEachOrEnd(endFunc){
+        sum += selector(it).toFloat()
+    }
+    return sum
+}
+
 /**
  * 图片的大小
  */
