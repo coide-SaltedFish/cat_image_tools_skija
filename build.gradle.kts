@@ -13,6 +13,7 @@ repositories {
 
 dependencies {
     implementation("org.jetbrains.skiko:skiko-awt-runtime-windows-x64:0.7.89.1")
+    implementation("io.github.microutils:kotlin-logging-jvm:2.0.6")
 
     testImplementation(kotlin("test"))
 }

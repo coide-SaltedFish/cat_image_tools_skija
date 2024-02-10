@@ -13,8 +13,6 @@ import org.sereinfish.catcat.image.skiko.tools.utils.size
 
 /**
  * 圆弧元素
- *
- * TODO 完成弧形的高宽精确计算
  */
 class ArcElement(
     var oval: Rect,
