@@ -1,7 +1,9 @@
 package org.sereinfish.catcat.image.skiko.tools.element
 
+import mu.KotlinLogging
 import org.sereinfish.catcat.image.skiko.tools.element.measure.offset.FloatOffset
 import org.sereinfish.catcat.image.skiko.tools.element.measure.size.FloatSize
+import org.slf4j.Logger
 
 /**
  * 布局接口
@@ -14,7 +16,12 @@ import org.sereinfish.catcat.image.skiko.tools.element.measure.size.FloatSize
  *
  * 注：布局需要完成子元素的计算和绘制
  */
+
+private val logger: Logger
+    get() = KotlinLogging.logger("Element")
+
 interface Layout: Element {
+
     val subElements: LinkedHashSet<Element> // 子元素集合
 
     /**
@@ -22,7 +29,10 @@ interface Layout: Element {
      */
     fun add(element: Element): Layout {
         if (element.parent != null && element.parent != this) {
-            TODO("发起警告，子元素已有父布局")
+            logger.warn(
+                "元素（${element::class.java}）已拥有父元素(${element.parent?.let { it::class.java }})，" +
+                    "当前已添加到新的父元素(${this::class.java})，可能会造成子元素在原有父元素的绘制错误"
+            )
         }
 
         element.parent = this
