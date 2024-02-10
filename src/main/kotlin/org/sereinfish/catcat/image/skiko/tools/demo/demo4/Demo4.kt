@@ -4,9 +4,12 @@ import org.jetbrains.skia.Color
 import org.sereinfish.catcat.image.skiko.tools.build.buildImageColumLayout
 import org.sereinfish.catcat.image.skiko.tools.build.extend.*
 import org.sereinfish.catcat.image.skiko.tools.build.modifier.Modifier
+import org.sereinfish.catcat.image.skiko.tools.element.Element
+import org.sereinfish.catcat.image.skiko.tools.element.Layout
 import org.sereinfish.catcat.image.skiko.tools.element.elements.RectElement
 import org.sereinfish.catcat.image.skiko.tools.element.elements.layout.ColumLayout
 import org.sereinfish.catcat.image.skiko.tools.element.elements.layout.RowLayout
+import org.sereinfish.catcat.image.skiko.tools.element.measure.alignment.Alignment
 import org.sereinfish.catcat.image.skiko.tools.utils.random
 import org.sereinfish.catcat.image.skiko.tools.utils.save
 
@@ -38,7 +41,7 @@ fun main() {
         repeat(5){
             rect(
                 Modifier<RectElement>()
-                    .weight(1)
+                    .weight(1 + it * 0.4)
                     .maxSize(),
                 color = Color.random()
             )

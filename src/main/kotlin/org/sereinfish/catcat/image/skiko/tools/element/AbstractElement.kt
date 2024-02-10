@@ -8,6 +8,7 @@ import org.sereinfish.catcat.image.skiko.tools.element.measure.ElementSizeMode
 import org.sereinfish.catcat.image.skiko.tools.element.measure.offset.FloatOffset
 import org.sereinfish.catcat.image.skiko.tools.element.measure.size.FloatRectSize
 import org.sereinfish.catcat.image.skiko.tools.element.measure.size.FloatSize
+import kotlin.math.max
 
 abstract class AbstractElement(
     override var parent: Layout? = null, // 父元素
@@ -20,6 +21,9 @@ abstract class AbstractElement(
     override var sizeMode: ElementSizeMode by attributes.valueOrElse { ElementSizeMode.Auto }
 
     var padding by attributes.valueOrDefault(FloatRectSize())
+
+    var minSize by attributes.valueOrNull<FloatSize>() // 最小大小
+    var maxSize by attributes.valueOrNull<FloatSize>() // 最大大小
 
     /**
      * 获取元素的大小
@@ -46,6 +50,16 @@ abstract class AbstractElement(
                 ElementSizeMode.MaxWidth -> size.width = maxSize.width
             }
         }
+        // 进行最大最小大小计算
+        this.maxSize?.let {
+            if (it.width != 0f) size.width = minOf(it.width, size.width)
+            if (it.height != 0f) size.height = minOf(it.height, size.height)
+        }
+
+        this.minSize?.let {
+            if (it.width != 0f) size.width = maxOf(it.width, size.width)
+            if (it.height != 0f) size.height = maxOf(it.height, size.height)
+        }
 
         return size
     }
@@ -67,8 +81,6 @@ abstract class AbstractElement(
         val parentPadding: FloatRectSize = parent?.attributes?.get("padding") as? FloatRectSize ?: FloatRectSize()
         // 计算相对坐标
         attributes.offset = parent?.subElementOffset(this)?.copy() ?: FloatOffset()
-
-//        attributes.offset = attributes.offset.add(parentPadding.offset())
 
         // 计算绝对坐标
         attributes.offsetAbsolute = parent?.attributes?.offsetAbsolute?.copy()?.add(attributes.offset) ?: attributes.offset.copy()

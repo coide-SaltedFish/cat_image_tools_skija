@@ -226,3 +226,43 @@ fun <T: AbstractElement> Modifier<T>.circularShape(
 ) = modifier {
     this.circularShape(includeCenter, stroke, strokeColor, strokeWidth, padding, shadowInfo, mode, antiAlias)
 }
+
+fun <T: AbstractElement> Modifier<T>.minSize(w: Number, h: Number) = modifier {
+    minSize = FloatSize(w.toFloat(), h.toFloat())
+}
+
+fun <T: AbstractElement> Modifier<T>.minWidth(w: Number) = modifier {
+    minSize?.let {
+        it.width = w.toFloat()
+    } ?: run {
+        minSize = FloatSize(w.toFloat(), 0f)
+    }
+}
+
+fun <T: AbstractElement> Modifier<T>.minHeight(h: Number) = modifier {
+    minSize?.let {
+        it.height = h.toFloat()
+    } ?: run {
+        minSize = FloatSize(0f, h.toFloat())
+    }
+}
+
+fun <T: AbstractElement> Modifier<T>.maxSize(w: Number, h: Number) = modifier {
+    maxSize = FloatSize(w.toFloat(), h.toFloat())
+}
+
+fun <T: AbstractElement> Modifier<T>.maxWidth(w: Number) = modifier {
+    maxSize?.let {
+        it.width = w.toFloat()
+    } ?: run {
+        maxSize = FloatSize(w.toFloat(), 0f)
+    }
+}
+
+fun <T: AbstractElement> Modifier<T>.maxHeight(h: Number) = modifier {
+    maxSize?.let {
+        it.height = h.toFloat()
+    } ?: run {
+        maxSize = FloatSize(0f, h.toFloat())
+    }
+}

@@ -31,6 +31,9 @@ interface WeightLayout: Layout {
         get() = this.attributes.getOrElse("weight") { 0f }
         set(value) { this.attributes["weight"] = value }
 
+    /**
+     * Modifier 扩展方法，设置元素的权重大小
+     */
     fun <T: Element> Modifier<T>.weight(value: Number) = modifier {
         this.weight = value.toFloat()
     }

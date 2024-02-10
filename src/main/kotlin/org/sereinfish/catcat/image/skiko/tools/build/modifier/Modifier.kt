@@ -23,6 +23,7 @@ class Modifier<T: Element>: DoublyLinkedList<ModifierNode<T>>(){
     /**
      * 新增构建器
      */
+    
     fun modifier(block: T.() -> Unit): Modifier<T> {
         append(object : ModifierNode<T> {
             override fun modifier(element: T) {
