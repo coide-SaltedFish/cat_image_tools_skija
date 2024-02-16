@@ -8,6 +8,9 @@ import org.sereinfish.catcat.image.skiko.tools.element.elements.TextElement
 import org.sereinfish.catcat.image.skiko.tools.element.elements.layout.ColumLayout
 import org.sereinfish.catcat.image.skiko.tools.utils.save
 
+/**
+ * 最大和最小元素大小的使用示例
+ */
 fun main() {
     buildImageColumLayout(
         modifier = Modifier<ColumLayout>()

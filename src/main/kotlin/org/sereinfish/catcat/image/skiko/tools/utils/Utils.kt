@@ -5,6 +5,7 @@ import org.jetbrains.skia.EncodedImageFormat
 import org.jetbrains.skia.EncodedImageFormat.*
 import org.jetbrains.skia.Image
 import org.jetbrains.skia.Path
+import org.jetbrains.skia.Surface
 import org.sereinfish.catcat.image.skiko.tools.build.modifier.Modifier
 import org.sereinfish.catcat.image.skiko.tools.element.AbstractElement
 import org.sereinfish.catcat.image.skiko.tools.element.measure.size.FloatRectSize
@@ -72,6 +73,14 @@ inline fun <T> Iterable<T>.forEachOrEnd(endFunc: (T) -> Boolean, action: (T) -> 
 
 
 inline fun <T> LinkedHashSet<T>.sumOf(selector: (T) -> Float): Float {
+    var sum = 0f
+    for (element in this) {
+        sum += selector(element)
+    }
+    return sum
+}
+
+inline fun <T> Iterable<T>.sumOf(selector: (T) -> Float): Float {
     var sum = 0f
     for (element in this) {
         sum += selector(element)
@@ -158,6 +167,23 @@ fun Image.bytes(format: EncodedImageFormat = PNG, quality: Int = 100) =
 
 fun Image.inputStream(format: EncodedImageFormat = PNG, quality: Int = 100) =
     encodeToData(format, quality)!!.bytes.inputStream()
+
+fun Image.flipImageHorizontally(): Image {
+    val surface = Surface.makeRasterN32Premul(width, height)
+    val canvas = surface.canvas
+
+    // 在水平方向上翻转坐标系
+    canvas.scale(-1f, 1f)
+
+    // 将坐标系移动到图像的右侧，以便在绘制时图像不会出现在画布的左侧
+    canvas.translate(-width.toFloat(), 0f)
+
+    // 绘制图像
+    canvas.drawImage(this, 0f, 0f)
+
+    return surface.makeImageSnapshot()
+}
+
 /**
  * 内边距
  */

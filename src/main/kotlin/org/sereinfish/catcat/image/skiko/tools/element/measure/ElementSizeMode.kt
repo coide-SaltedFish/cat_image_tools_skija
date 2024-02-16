@@ -10,18 +10,18 @@ class ElementSizeMode(
     private var value: Int
 ) {
     companion object{
-        val Auto =          ElementSizeMode(0b11) // 默认值，元素大小自动计算，超过父布局裁剪显示，没超过根据元素大小显示
-        val AutoWidth =     ElementSizeMode(0b01) // 自动宽度
-        val AutoHeight =    ElementSizeMode(0b10) // 自动高度
-        val Value =         ElementSizeMode(0b1100) // 根据手动设置的大小显示
-        val ValueWidth =    ElementSizeMode(0b0100)
-        val ValueHeight =   ElementSizeMode(0b1000)
+        val Auto =          ElementSizeMode(0b000011) // 默认值，元素大小自动计算，超过父布局裁剪显示，没超过根据元素大小显示
+        val AutoWidth =     ElementSizeMode(0b000001) // 自动宽度
+        val AutoHeight =    ElementSizeMode(0b000010) // 自动高度
+        val Value =         ElementSizeMode(0b001100) // 根据手动设置的大小显示
+        val ValueWidth =    ElementSizeMode(0b000100)
+        val ValueHeight =   ElementSizeMode(0b001000)
         val MaxFill =       ElementSizeMode(0b110000) // 占满父布局
         val MaxWidth =      ElementSizeMode(0b010000) // 最大宽度
         val MaxHeight =     ElementSizeMode(0b100000) // 最大高度
     }
 
-    fun and(other: ElementSizeMode): ElementSizeMode {
+    infix fun and(other: ElementSizeMode): ElementSizeMode {
         return ElementSizeMode(value.or(other.value))
     }
 

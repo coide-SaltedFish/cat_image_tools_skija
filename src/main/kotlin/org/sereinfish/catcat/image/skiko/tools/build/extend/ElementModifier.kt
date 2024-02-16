@@ -38,7 +38,7 @@ fun <T: Element> Modifier<T>.background(
     alignment: Alignment = Alignment.CENTER,
     paintBuilder: Paint.() -> Unit = {}, // 构建 Paint
 ) = modifier {
-    beforeDrawChain.plus(ElementImageDraw(size, image, samplingMode, cropMode, alignment, paintBuilder))
+    beforeDrawChain.plus(ElementImageDraw(this, image, samplingMode, cropMode, alignment, paintBuilder))
 }
 
 /**

@@ -16,7 +16,7 @@ import org.sereinfish.catcat.image.skiko.tools.utils.sumOrEnd
 /**
  * 垂直布局
  */
-class ColumLayout(
+open class ColumLayout(
     override var alignment: Alignment = Alignment.LEFT.and(Alignment.TOP),
 ): AbstractLayout(), AlignmentLayout, WeightLayout {
 

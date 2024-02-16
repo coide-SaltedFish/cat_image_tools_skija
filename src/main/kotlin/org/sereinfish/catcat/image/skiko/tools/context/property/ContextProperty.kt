@@ -4,8 +4,8 @@ import org.sereinfish.catcat.image.skiko.tools.context.Context
 import kotlin.reflect.KProperty
 
 class ContextProperty<T> (
-    val context: Context, // 上下文
-    val type: Class<*>,
+    private val context: Context, // 上下文
+    private val type: Class<*>
 ) {
     operator fun getValue(thisRef: Any?, property: KProperty<*>): T {
         val value = context[property.name] ?: throw NullPointerException("上下文找不到对应属性 ${property.name} :null")

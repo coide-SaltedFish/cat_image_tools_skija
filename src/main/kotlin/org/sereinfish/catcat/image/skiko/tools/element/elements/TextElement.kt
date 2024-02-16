@@ -17,7 +17,7 @@ import org.sereinfish.catcat.image.skiko.tools.utils.saveBlock
  *
  * 只能绘制一行
  */
-class TextElement(
+open class TextElement(
     var text: String, // 字符串
     var font: Font = Font(Typeface.makeFromName("黑体", FontStyle.NORMAL), 18f), // 字体
     var wordSpace: Float = 0f, // 字间距
@@ -29,23 +29,25 @@ class TextElement(
     var isTextCompact: Boolean = false // 紧凑绘制文本
 ) : AbstractElement(), AlignmentLayout {
 
-    private val paint: Paint get() = buildPaint() // 获取实时构建的 Paint
+    protected val paint: Paint get() = buildPaint() // 获取实时构建的 Paint
 
     init {
         // 定义元素绘制器
         elementDraw = buildDraw { context ->
-            saveBlock({
-                translate(padding.left, padding.top)
-                clipRect(Rect.makeWH(size.width, size.height))
-            }) {
-                val offset = getTextDrawOffset() // 获取起始坐标
+            if (text.isNotEmpty()){
+                saveBlock({
+                    translate(padding.left, padding.top)
+                    clipRect(Rect.makeWH(size.width, size.height))
+                }) {
+                    val offset = getTextDrawOffset() // 获取起始坐标
 
-                text.forEachIndexed { index, c ->
-                    if (index > 0) offset.x += getIndexCharSize(index - 1) // 计算上一个字符的宽度
-                    drawString("$c", offset.x, offset.y, font, paint) // 绘制字符
+                    text.forEachIndexed { index, c ->
+                        if (index > 0) offset.x += getIndexCharSize(index - 1) // 计算上一个字符的宽度
+                        drawString("$c", offset.x, offset.y, font, paint) // 绘制字符
+                    }
+
+                    offset.x += getIndexCharSize(text.length - 1)
                 }
-
-                offset.x += getIndexCharSize(text.length - 1)
             }
         }
     }
@@ -69,9 +71,13 @@ class TextElement(
      * 获取文本绘制出来的大小
      */
     private fun getTextDrawSize(): FloatSize {
-        val rect = font.measureText(text, paint)
+        return getTextDrawSize(text)
+    }
+
+    protected fun getTextDrawSize(str: String): FloatSize {
+        val rect = font.measureText(str, paint)
         var width = 0f
-        for (i in text.indices){
+        for (i in str.indices){
             width += getIndexCharSize(i)
         }
         return FloatSize(width, rect.height)
@@ -89,9 +95,8 @@ class TextElement(
     /**
      * 获取单个字符大小
      */
-    private fun getWordDrawRectSize(c: Char): Rect {
-        if (c == ' ') return font.measureText("X", paint)
-
+    protected fun getWordDrawRectSize(c: Char): Rect {
+        if (c == ' ') return font.measureText("▌", paint)
         return font.measureText("$c", paint)
     }
 
@@ -105,7 +110,8 @@ class TextElement(
     /**
      * 重写自动大小
      */
-    override fun autoSize(): FloatSize = getElementSize()
+    override fun autoSize(): FloatSize =
+        if (text.isEmpty()) FloatSize() else getElementSize()
 
     /**
      * 获取元素的 Paint

@@ -40,7 +40,7 @@ fun main() {
             text(modifier = Modifier<TextElement>().padding(tb = 5), text = it.name)
             colum (
                 modifier = Modifier<ColumLayout>()
-                    .size(200)
+                    .size(1000, 100)
                     .border()
             ) {
                 image(
