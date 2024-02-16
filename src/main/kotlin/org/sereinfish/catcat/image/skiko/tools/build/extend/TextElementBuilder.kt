@@ -2,6 +2,7 @@ package org.sereinfish.catcat.image.skiko.tools.build.extend
 
 import org.jetbrains.skia.*
 import org.sereinfish.catcat.image.skiko.tools.build.modifier.Modifier
+import org.sereinfish.catcat.image.skiko.tools.draw.utils.buildDraw
 import org.sereinfish.catcat.image.skiko.tools.element.Layout
 import org.sereinfish.catcat.image.skiko.tools.element.elements.TextElement
 import org.sereinfish.catcat.image.skiko.tools.element.elements.TextFieldElement
@@ -68,6 +69,7 @@ fun Layout.text(
 
 fun Layout.textField(
     modifier: Modifier<TextFieldElement>? = null,
+    subModifier: Modifier<TextElement>? = null, // 子元素的modifier
     text: String,
     color: Int = Color.BLACK, // 字体颜色
     wordSpace: Number = 0f, // 字间距
@@ -91,6 +93,11 @@ fun Layout.textField(
         isTextCompact = isTextCompact
     )
     modifier?.modifier(textElement)
+    subModifier?.let { m ->
+        textElement.subElementBuilder.add {
+            m.modifier(this)
+        }
+    }
     textElement.block()
 
     add(textElement)
@@ -100,6 +107,7 @@ fun Layout.textField(
 
 fun Layout.textField(
     modifier: Modifier<TextFieldElement>? = null,
+    subModifier: Modifier<TextElement>? = null, // 子元素的modifier
     text: String,
     typeface: Typeface = Typeface.makeDefault(),
     fontSize: Number = 18,
@@ -114,6 +122,7 @@ fun Layout.textField(
 ): TextFieldElement {
     return textField(
         modifier = modifier,
+        subModifier = subModifier,
         text = text,
         font = Font(typeface, fontSize.toFloat()),
         color = color,
@@ -129,6 +138,7 @@ fun Layout.textField(
 
 fun Layout.textField(
     modifier: Modifier<TextFieldElement>? = null,
+    subModifier: Modifier<TextElement>? = null, // 子元素的modifier
     text: String,
     fontName: String = "黑体",
     fontStyle: FontStyle = FontStyle.NORMAL,
@@ -144,6 +154,7 @@ fun Layout.textField(
 ): TextFieldElement {
     return textField(
         modifier = modifier,
+        subModifier = subModifier,
         text = text,
         font = Font(Typeface.makeFromName(fontName, fontStyle), fontSize.toFloat()),
         color = color,

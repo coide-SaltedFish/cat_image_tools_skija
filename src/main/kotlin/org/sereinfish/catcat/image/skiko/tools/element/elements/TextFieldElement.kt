@@ -13,7 +13,7 @@ import org.sereinfish.catcat.image.skiko.tools.element.measure.alignment.and
 import org.sereinfish.catcat.image.skiko.tools.element.measure.size.FloatSize
 import org.sereinfish.catcat.image.skiko.tools.utils.forEachWithSeparator
 import org.sereinfish.catcat.image.skiko.tools.utils.paint
-import org.sereinfish.catcat.image.skiko.tools.utils.sumOf
+import java.util.Vector
 
 /**
  * 文本域
@@ -30,22 +30,32 @@ class TextFieldElement(
     var paintBuilder: (Paint.() -> Unit)? = null, // 画笔构建
     var isTextCompact: Boolean = false // 紧凑绘制文本
 ): ColumLayout(alignment) {
+    protected var isUpdateField = true
+
+    // 修改子元素
+    val subElementBuilder: Vector<TextElement.() -> Unit> = Vector()
 
     var text: String = text
         set(value) {
             field = value
+            isUpdateField = true
             updateTextField()
         }
 
     protected val paint: Paint get() = buildPaint() // 获取实时构建的 Paint
 
     // 完成文本行分割，然后依次添加到布局
-    protected fun updateTextField(){
+    fun updateTextField(){
+        if (isUpdateField.not()) return
+        isUpdateField = false
+
         if (subElements.isNotEmpty()) subElements.clear()
         stringLines().forEachWithSeparator({
             row(Modifier<RowLayout>().size(0.1, lineSpace))
         }) {
-            add(TextElement(it, font, wordSpace, color, shadow, paintBuilder = paintBuilder, isTextCompact = isTextCompact))
+            add(TextElement(it, font, wordSpace, color, shadow, paintBuilder = paintBuilder, isTextCompact = isTextCompact).apply {
+                subElementBuilder.forEach { it() }
+            })
         }
     }
 
@@ -67,8 +77,8 @@ class TextFieldElement(
             buildList {
                 // 需要获取元素的具体宽度
                 val w = if (sizeMode.contain(ElementSizeMode.MaxWidth))
-                    maxSize().width
-                else this@TextFieldElement.size.width
+                    maxSize().minus(padding.size()).width
+                else this@TextFieldElement.size.minus(padding.size()).width
 
                 // 开始计算字符能否放下
                 strs.forEach {
@@ -108,12 +118,12 @@ class TextFieldElement(
      * 4. 根据行数计算元素的最终大小
      * 5. 根据分配好的文本行数完成文本绘制
      */
-    override fun autoSize(): FloatSize {
-        val lines = stringLines()
-        val size = getTextDrawSize(lines.maxBy { it.length })
-        val height = lines.sumOf { getTextDrawSize(it).height } + (lines.size - 1) * lineSpace
-        return FloatSize(size.width, height)
-    }
+//    override fun autoSize(): FloatSize {
+//        val lines = stringLines()
+//        val size = getTextDrawSize(lines.maxBy { it.length })
+//        val height = lines.sumOf { getTextDrawSize(it).height } + (lines.size - 1) * lineSpace
+//        return FloatSize(size.width, height).add(padding.size())
+//    }
 
     protected fun getTextDrawSize(str: String): FloatSize {
         val rect = font.measureText(str, paint)

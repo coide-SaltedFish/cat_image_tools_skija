@@ -26,9 +26,10 @@ open class ColumLayout(
     override fun autoSize(): FloatSize {
         return FloatSize().apply {
             subElements.forEach {
-                val subSize = it.size()
-                height += subSize.height
-                width = maxOf(width, subSize.width)
+                if (it.sizeMode.contain(ElementSizeMode.MaxHeight).not())
+                    height += it.size().height
+                if (it.sizeMode.contain(ElementSizeMode.MaxWidth).not())
+                    width = maxOf(width, it.size().width)
             }
         }.add(padding.size())
     }
@@ -86,6 +87,7 @@ open class ColumLayout(
         if (sizeMode.contain(ElementSizeMode.AutoHeight))
             size.height = 0f
 
+        // 计算比例坐标
         if (element.sizeMode.contain(ElementSizeMode.MaxHeight) && weightSum != 0f){
             size.height = subElementWeightSize(element).height
         }

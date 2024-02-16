@@ -2,6 +2,7 @@ package org.sereinfish.catcat.image.skiko.tools.element
 
 import org.sereinfish.catcat.image.skiko.tools.element.context.ElementDrawContext
 import org.jetbrains.skia.Rect
+import org.sereinfish.catcat.image.skiko.tools.element.measure.ElementSizeMode
 import org.sereinfish.catcat.image.skiko.tools.utils.saveBlock
 
 /**
@@ -40,10 +41,15 @@ abstract class AbstractLayout(
 
     override fun updateElementInfo() {
         // 更新自己的数据
-        size = size()
         super.updateElementInfo()
 
         // 更新子元素的数据
         subElements.forEach { it.updateElementInfo() }
+
+        size = size()
+
+        subElements.filter {
+            it.sizeMode.contain(ElementSizeMode.MaxHeight) or it.sizeMode.contain(ElementSizeMode.MaxWidth)
+        }.forEach { it.updateElementInfo() }
     }
 }

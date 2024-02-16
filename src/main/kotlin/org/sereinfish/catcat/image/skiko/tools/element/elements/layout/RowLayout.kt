@@ -18,9 +18,10 @@ class RowLayout(
     override fun autoSize(): FloatSize {
         return FloatSize().apply {
             subElements.forEach {
-                val subSize = it.size()
-                width += subSize.width
-                height = maxOf(subSize.height, height)
+                if (it.sizeMode.contain(ElementSizeMode.MaxHeight).not())
+                    height = maxOf(height, it.size().height)
+                if (it.sizeMode.contain(ElementSizeMode.MaxWidth).not())
+                    width += it.size().width
             }
         }.add(padding.size())
     }

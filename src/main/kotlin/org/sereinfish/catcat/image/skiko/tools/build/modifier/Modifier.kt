@@ -23,13 +23,23 @@ class Modifier<T: Element>: DoublyLinkedList<ModifierNode<T>>(){
     /**
      * 新增构建器
      */
-    
     fun modifier(block: T.() -> Unit): Modifier<T> {
         append(object : ModifierNode<T> {
             override fun modifier(element: T) {
                 block(element)
             }
         })
+
+        return this
+    }
+
+    /**
+     * 合成构建器
+     */
+    fun modifier(modifier: Modifier<T>): Modifier<T> {
+        modifier.forEach {
+            append(it)
+        }
 
         return this
     }

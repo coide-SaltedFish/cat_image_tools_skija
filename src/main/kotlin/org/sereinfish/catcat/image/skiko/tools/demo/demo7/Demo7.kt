@@ -6,6 +6,7 @@ import org.jetbrains.skia.makeFromFile
 import org.sereinfish.catcat.image.skiko.tools.build.buildImageColumLayout
 import org.sereinfish.catcat.image.skiko.tools.build.extend.*
 import org.sereinfish.catcat.image.skiko.tools.build.modifier.Modifier
+import org.sereinfish.catcat.image.skiko.tools.element.elements.TextElement
 import org.sereinfish.catcat.image.skiko.tools.element.elements.TextFieldElement
 import org.sereinfish.catcat.image.skiko.tools.element.elements.layout.ColumLayout
 import org.sereinfish.catcat.image.skiko.tools.utils.save
@@ -23,6 +24,9 @@ fun main() {
         textField(
             modifier = Modifier<TextFieldElement>()
                 .maxWidth(),
+            subModifier = Modifier<TextElement>()
+                .textShadow(1, 2, Color.RED)
+                .padding(4),
             lineSpace = 5,
             typeface = Typeface.makeFromFile("./src/main/kotlin/org/sereinfish/catcat/image/skiko/tools/demo/src/font/MiSans-Normal.ttf"),
             fontSize = 28,
