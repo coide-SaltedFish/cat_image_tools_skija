@@ -9,8 +9,10 @@ import org.sereinfish.catcat.image.skiko.tools.element.measure.alignment.and
 import org.sereinfish.catcat.image.skiko.tools.element.measure.offset.FloatOffset
 import org.sereinfish.catcat.image.skiko.tools.element.measure.size.FloatSize
 import org.jetbrains.skia.*
+import org.sereinfish.catcat.image.skiko.tools.element.measure.ElementSizeMode
 import org.sereinfish.catcat.image.skiko.tools.utils.paint
 import org.sereinfish.catcat.image.skiko.tools.utils.saveBlock
+import kotlin.math.roundToInt
 
 /**
  * 基本的文本元素
@@ -26,7 +28,8 @@ open class TextElement(
     var shadow: ShadowInfo? = null, // 文字阴影
     override var alignment: Alignment = Alignment.LEFT.and(Alignment.CENTER_VERTICAL), // 对齐方式
     var paintBuilder: (Paint.() -> Unit)? = null, // 画笔构建
-    var isTextCompact: Boolean = false // 紧凑绘制文本
+    var isTextCompact: Boolean = false, // 紧凑绘制文本
+    var enableAdaptiveFontSize: Boolean = false, // 自适应文本大小
 ) : AbstractElement(), AlignmentLayout {
 
     protected val paint: Paint get() = buildPaint() // 获取实时构建的 Paint
@@ -108,10 +111,56 @@ open class TextElement(
     }
 
     /**
+     * 自适应文本大小
+     */
+    protected fun adaptiveFontSize(){
+        if (enableAdaptiveFontSize){
+            val width = size.width - padding.size().width
+
+            if (sizeMode.contain(ElementSizeMode.AutoHeight).not() and sizeMode.contain(ElementSizeMode.AutoWidth).not()){
+                // 求个大概的值
+                font.size = ((width - text.length * wordSpace) / text.length).roundToInt().toFloat()
+                // 循环匹配
+                var w = getTextDrawSize(text).width
+                while (w < width){
+                    font.size ++
+                    w = getTextDrawSize(text).width
+                }
+                font.size --
+
+                font.size = minOf(
+                    size.height - padding.size().height,
+                    font.size
+                )
+            }else {
+                if (sizeMode.contain(ElementSizeMode.AutoHeight).not()){
+                    font.size = size.height - padding.size().height
+                }
+
+                if (sizeMode.contain(ElementSizeMode.AutoWidth).not() and enableAdaptiveFontSize){
+                    // 求个大概的值
+                    font.size = ((width - text.length * wordSpace) / text.length).roundToInt().toFloat()
+                    // 循环匹配
+                    var w = getTextDrawSize(text).width
+                    while (w < width){
+                        font.size ++
+                        w = getTextDrawSize(text).width
+                    }
+                    font.size --
+                }
+            }
+        }
+    }
+
+    /**
      * 重写自动大小
      */
-    override fun autoSize(): FloatSize =
-        if (text.isEmpty()) FloatSize() else getElementSize()
+    override fun autoSize(): FloatSize {
+        return if (text.isEmpty()) FloatSize() else {
+            adaptiveFontSize()
+            getElementSize()
+        }
+    }
 
     /**
      * 获取元素的 Paint

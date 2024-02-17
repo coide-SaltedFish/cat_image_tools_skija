@@ -9,8 +9,12 @@ import org.sereinfish.catcat.image.skiko.tools.draw.utils.buildDraw
 import org.sereinfish.catcat.image.skiko.tools.element.AbstractElement
 import org.sereinfish.catcat.image.skiko.tools.element.Element
 import org.sereinfish.catcat.image.skiko.tools.element.Layout
+import org.sereinfish.catcat.image.skiko.tools.element.elements.RectElement
+import org.sereinfish.catcat.image.skiko.tools.element.elements.TextElement
 import org.sereinfish.catcat.image.skiko.tools.element.elements.layout.ColumLayout
 import org.sereinfish.catcat.image.skiko.tools.element.elements.layout.RowLayout
+import org.sereinfish.catcat.image.skiko.tools.element.measure.ElementSizeMode
+import org.sereinfish.catcat.image.skiko.tools.element.measure.alignment.Alignment
 import org.sereinfish.catcat.image.skiko.tools.element.measure.size.FloatSize
 import org.sereinfish.catcat.image.skiko.tools.utils.colorCopy
 import org.sereinfish.catcat.image.skiko.tools.utils.makeFromEncoded
@@ -21,16 +25,48 @@ fun main() {
 
     buildImageRowLayout(
         modifier = Modifier<RowLayout>()
-            .width(500)
+            .size(500, 100)
     ) {
-        rect(size = FloatSize(100, 100), color = Color.RED)
-
         colum(
             modifier = Modifier<ColumLayout>()
-                .maxSize()
-                .background(Color.BLUE.colorCopy(a = 100))
+                .maxHeight()
+                .padding(5)
+                .rRectShape(
+                    10,
+                    stroke = true,
+                    strokeColor = Color.BLACK.colorCopy(a = 50),
+                )
+                .square()
         ) {
+            colum(
+                modifier  = Modifier<ColumLayout>()
+                    .maxSize()
+                    .weight(1)
+            ) {
+                text(
+                    modifier  = Modifier<TextElement>()
+                        .alignment(Alignment.CENTER)
+                        .maxSize(),
+                    text = "123",
+                    fontSize = 1f,
+                    enableAdaptiveFontSize = true
+                )
+            }
 
+            colum(
+                modifier  = Modifier<ColumLayout>()
+                    .maxSize()
+                    .weight(1)
+            ) {
+                text(
+                    modifier  = Modifier<TextElement>()
+                        .alignment(Alignment.CENTER)
+                        .maxSize(),
+                    text = "Lv",
+                    fontSize = 1f,
+                    enableAdaptiveFontSize = true
+                )
+            }
         }
     }.save("./output")
 }

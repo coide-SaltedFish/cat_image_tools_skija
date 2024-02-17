@@ -50,6 +50,8 @@ abstract class AbstractLayout(
 
         subElements.filter {
             it.sizeMode.contain(ElementSizeMode.MaxHeight) or it.sizeMode.contain(ElementSizeMode.MaxWidth)
-        }.forEach { it.updateElementInfo() }
+        }.forEach {
+            it.updateElementInfo()
+        }
     }
 }

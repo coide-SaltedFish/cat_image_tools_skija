@@ -22,10 +22,21 @@ fun Layout.text(
     shadow: ShadowInfo? = null, // 文字阴影
     alignment: Alignment = Alignment.LEFT.and(Alignment.CENTER_VERTICAL), // 对齐方式
     isTextCompact: Boolean = false,
+    enableAdaptiveFontSize: Boolean = false, // 自适应文本大小
     paint: (Paint.() -> Unit)? = null, // 画笔构建
     block: TextElement.() -> Unit = {}
 ): TextElement {
-    val textElement = TextElement(text, font = font, color = color, wordSpace = wordSpace.toFloat(), shadow = shadow, alignment = alignment, paintBuilder = paint, isTextCompact = isTextCompact)
+    val textElement = TextElement(
+        text,
+        font = font,
+        color = color,
+        wordSpace = wordSpace.toFloat(),
+        shadow = shadow,
+        alignment = alignment,
+        paintBuilder = paint,
+        isTextCompact = isTextCompact,
+        enableAdaptiveFontSize = enableAdaptiveFontSize
+    )
     modifier?.modifier(textElement)
     textElement.block()
 
@@ -44,10 +55,23 @@ fun Layout.text(
     shadow: ShadowInfo? = null, // 文字阴影
     alignment: Alignment = Alignment.LEFT.and(Alignment.CENTER_VERTICAL), // 对齐方式
     isTextCompact: Boolean = false,
+    enableAdaptiveFontSize: Boolean = false, // 自适应文本大小
     paint: (Paint.() -> Unit)? = null, // 画笔构建
     block: TextElement.() -> Unit = {}
 ): TextElement {
-    return text(modifier, text, color, wordSpace, Font(typeface, fontSize.toFloat()), shadow, alignment, isTextCompact, paint, block)
+    return text(
+        modifier,
+        text,
+        color,
+        wordSpace,
+        Font(typeface, fontSize.toFloat()),
+        shadow,
+        alignment,
+        isTextCompact,
+        enableAdaptiveFontSize,
+        paint,
+        block
+    )
 }
 
 fun Layout.text(
@@ -61,10 +85,23 @@ fun Layout.text(
     shadow: ShadowInfo? = null, // 文字阴影
     alignment: Alignment = Alignment.LEFT.and(Alignment.CENTER_VERTICAL), // 对齐方式
     isTextCompact: Boolean = false,
+    enableAdaptiveFontSize: Boolean = false, // 自适应文本大小
     paint: (Paint.() -> Unit)? = null, // 画笔构建
     block: TextElement.() -> Unit = {}
 ): TextElement {
-    return text(modifier, text, color, wordSpace, Font(Typeface.makeFromName(fontName, fontStyle), fontSize.toFloat()), shadow, alignment, isTextCompact, paint, block)
+    return text(
+        modifier,
+        text,
+        color,
+        wordSpace,
+        Font(Typeface.makeFromName(fontName, fontStyle), fontSize.toFloat()),
+        shadow,
+        alignment,
+        isTextCompact,
+        enableAdaptiveFontSize,
+        paint,
+        block
+    )
 }
 
 fun Layout.textField(

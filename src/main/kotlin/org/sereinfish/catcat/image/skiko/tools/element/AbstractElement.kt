@@ -4,10 +4,13 @@ import org.sereinfish.catcat.image.skiko.tools.draw.Draw
 import org.sereinfish.catcat.image.skiko.tools.draw.utils.buildDraw
 import org.sereinfish.catcat.image.skiko.tools.element.context.ElementAttrContext
 import org.sereinfish.catcat.image.skiko.tools.element.draw.ElementDrawChain
+import org.sereinfish.catcat.image.skiko.tools.element.elements.RectElement
 import org.sereinfish.catcat.image.skiko.tools.element.measure.ElementSizeMode
 import org.sereinfish.catcat.image.skiko.tools.element.measure.offset.FloatOffset
 import org.sereinfish.catcat.image.skiko.tools.element.measure.size.FloatRectSize
 import org.sereinfish.catcat.image.skiko.tools.element.measure.size.FloatSize
+import java.util.Vector
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.max
 
 abstract class AbstractElement(
@@ -22,8 +25,8 @@ abstract class AbstractElement(
 
     var padding by attributes.valueOrDefault(FloatRectSize())
 
-    var minSize by attributes.valueOrNull<FloatSize>() // 最小大小
-    var maxSize by attributes.valueOrNull<FloatSize>() // 最大大小
+    // 大小计算扩展模块
+    var sizeExtendModules = ConcurrentHashMap<String, (FloatSize) -> Unit>()
 
     /**
      * 获取元素的大小
@@ -50,16 +53,9 @@ abstract class AbstractElement(
                 ElementSizeMode.MaxWidth -> size.width = maxSize.width
             }
         }
-        // 进行最大最小大小计算
-        this.maxSize?.let {
-            if (it.width != 0f) size.width = minOf(it.width, size.width)
-            if (it.height != 0f) size.height = minOf(it.height, size.height)
-        }
 
-        this.minSize?.let {
-            if (it.width != 0f) size.width = maxOf(it.width, size.width)
-            if (it.height != 0f) size.height = maxOf(it.height, size.height)
-        }
+
+        sizeExtendModules.values.forEach { it(size) }
 
         return size
     }

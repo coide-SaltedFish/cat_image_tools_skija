@@ -227,8 +227,28 @@ fun <T: AbstractElement> Modifier<T>.circularShape(
     this.circularShape(includeCenter, stroke, strokeColor, strokeWidth, padding, shadowInfo, mode, antiAlias)
 }
 
+// 最小大小
+var AbstractElement.minSize: FloatSize?
+    get() = attributes.getOrElse("minSize"){ null }
+    set(value) {
+        attributes["minSize"] = value
+    }
+
+// 最大大小
+var AbstractElement.maxSize: FloatSize?
+    get() = attributes.getOrElse("maxSize"){ null }
+    set(value) {
+        attributes["maxSize"] = value
+    }
+
 fun <T: AbstractElement> Modifier<T>.minSize(w: Number, h: Number) = modifier {
     minSize = FloatSize(w.toFloat(), h.toFloat())
+    sizeExtendModules["minSize"] = { size ->
+        minSize?.let {
+            if (it.width != 0f) size.width = maxOf(it.width, size.width)
+            if (it.height != 0f) size.height = maxOf(it.height, size.height)
+        }
+    }
 }
 
 fun <T: AbstractElement> Modifier<T>.minWidth(w: Number) = modifier {
@@ -236,6 +256,12 @@ fun <T: AbstractElement> Modifier<T>.minWidth(w: Number) = modifier {
         it.width = w.toFloat()
     } ?: run {
         minSize = FloatSize(w.toFloat(), 0f)
+    }
+    sizeExtendModules["minSize"] = { size ->
+        minSize?.let {
+            if (it.width != 0f) size.width = maxOf(it.width, size.width)
+            if (it.height != 0f) size.height = maxOf(it.height, size.height)
+        }
     }
 }
 
@@ -245,10 +271,23 @@ fun <T: AbstractElement> Modifier<T>.minHeight(h: Number) = modifier {
     } ?: run {
         minSize = FloatSize(0f, h.toFloat())
     }
+    sizeExtendModules["minSize"] = { size ->
+        minSize?.let {
+            if (it.width != 0f) size.width = maxOf(it.width, size.width)
+            if (it.height != 0f) size.height = maxOf(it.height, size.height)
+        }
+    }
 }
 
 fun <T: AbstractElement> Modifier<T>.maxSize(w: Number, h: Number) = modifier {
     maxSize = FloatSize(w.toFloat(), h.toFloat())
+    sizeExtendModules["maxSize"] = { size ->
+        // 进行最大最小大小计算
+        this.maxSize?.let {
+            if (it.width != 0f) size.width = minOf(it.width, size.width)
+            if (it.height != 0f) size.height = minOf(it.height, size.height)
+        }
+    }
 }
 
 fun <T: AbstractElement> Modifier<T>.maxWidth(w: Number) = modifier {
@@ -257,6 +296,14 @@ fun <T: AbstractElement> Modifier<T>.maxWidth(w: Number) = modifier {
     } ?: run {
         maxSize = FloatSize(w.toFloat(), 0f)
     }
+    sizeExtendModules["maxSize"] = { size ->
+        // 进行最大最小大小计算
+        this.maxSize?.let {
+            if (it.width != 0f) size.width = minOf(it.width, size.width)
+            if (it.height != 0f) size.height = minOf(it.height, size.height)
+        }
+    }
+
 }
 
 fun <T: AbstractElement> Modifier<T>.maxHeight(h: Number) = modifier {
@@ -265,4 +312,60 @@ fun <T: AbstractElement> Modifier<T>.maxHeight(h: Number) = modifier {
     } ?: run {
         maxSize = FloatSize(0f, h.toFloat())
     }
+    sizeExtendModules["maxSize"] = { size ->
+        // 进行最大最小大小计算
+        this.maxSize?.let {
+            if (it.width != 0f) size.width = minOf(it.width, size.width)
+            if (it.height != 0f) size.height = minOf(it.height, size.height)
+        }
+    }
 }
+
+// 正方形模式
+var AbstractElement.squareMode: Boolean
+    get() = attributes.getOrElse("squareMode"){ false }
+    set(value) {
+        attributes["squareMode"] = value
+    }
+
+fun <T: AbstractElement> Modifier<T>.square() = squareMode(true)
+
+fun <T: AbstractElement> Modifier<T>.squareMode(mode: Boolean = true) = modifier {
+    squareMode = mode
+
+    sizeExtendModules["square"] = { size ->
+        // 正方形设置
+        if (squareMode){
+            val v = maxOf(size.width, size.height)
+            size.width = v
+            size.height = v
+        }
+    }
+}
+
+// 比例内边距
+var AbstractElement.scalePadding: FloatRectSize?
+    get() = attributes.getOrElse("scalePadding"){ null }
+    set(value) {
+        attributes["scalePadding"] = value
+    }
+
+fun <T: AbstractElement> Modifier<T>.scalePadding(
+    l: Number = 0,
+    r: Number = 0,
+    t: Number = 0,
+    b: Number = 0
+) = modifier {
+    sizeExtendModules["scalePadding"] = { size ->
+        padding = FloatRectSize(
+            left = l.toFloat() * size.width,
+            right = r.toFloat() * size.width,
+            top = t.toFloat() * size.height,
+            bottom = b.toFloat() * size.height,
+        )
+    }
+}
+
+fun <T: AbstractElement> Modifier<T>.scalePadding(value: Number) = scalePadding(value, value, value, value)
+
+fun <T: AbstractElement> Modifier<T>.scalePadding(lr: Number = 0, tb: Number = 0) = scalePadding(lr, lr, tb, tb)
