@@ -66,7 +66,7 @@ class AbsoluteLayoutSubElementBuilder: AbsoluteLayout() {
     }
 }
 fun Layout.abs(
-    modifier: Modifier<AbsoluteLayout> = Modifier(),
+    modifier: Modifier<in AbsoluteLayout> = Modifier(),
     block: AbsoluteLayoutSubElementBuilder.() -> Unit
 ): AbsoluteLayout {
     val layout = AbsoluteLayoutSubElementBuilder()

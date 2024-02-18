@@ -10,7 +10,7 @@ interface ModifierNode<T> {
 /**
  * 元素构建器
  */
-class Modifier<T: Element>: DoublyLinkedList<ModifierNode<T>>(){
+class Modifier<T: Element>: DoublyLinkedList<ModifierNode<in T>>(){
     /**
      * 进行元素处理
      */
@@ -36,7 +36,7 @@ class Modifier<T: Element>: DoublyLinkedList<ModifierNode<T>>(){
     /**
      * 合成构建器
      */
-    fun modifier(modifier: Modifier<T>): Modifier<T> {
+    fun modifier(modifier: Modifier<in T>): Modifier<T> {
         modifier.forEach {
             append(it)
         }

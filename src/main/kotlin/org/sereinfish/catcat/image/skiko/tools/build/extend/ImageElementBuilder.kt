@@ -15,7 +15,7 @@ import org.sereinfish.catcat.image.skiko.tools.element.measure.offset.FloatOffse
  * 图片元素
  */
 fun Layout.image(
-    modifier: Modifier<ImageElement>? = null,
+    modifier: Modifier<in ImageElement>? = null,
     image: Image,
     offset: FloatOffset = FloatOffset(),
     imageShadowInfo: ShadowInfo? = null,

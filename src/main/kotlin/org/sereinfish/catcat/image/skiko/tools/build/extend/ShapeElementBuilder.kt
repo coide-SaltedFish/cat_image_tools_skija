@@ -11,7 +11,7 @@ import org.sereinfish.catcat.image.skiko.tools.element.measure.ShadowInfo
 import org.sereinfish.catcat.image.skiko.tools.element.measure.size.FloatSize
 
 fun Layout.shape(
-    modifier: Modifier<ShapeElement> = Modifier(),
+    modifier: Modifier<in ShapeElement> = Modifier(),
     path: Path.(element: ShapeElement) -> Unit,
     antiAlias: Boolean = true,
     shadowInfo: ShadowInfo? = null,
@@ -31,7 +31,7 @@ fun Layout.shape(
  * 矩形构建
  */
 fun Layout.rect(
-    modifier: Modifier<RectElement> = Modifier(),
+    modifier: Modifier<in RectElement> = Modifier(),
     width: Number = 10,
     height: Number = 10,
     color: Int = Color.RED,
@@ -45,7 +45,7 @@ fun Layout.rect(
 }
 
 fun Layout.rect(
-    modifier: Modifier<RectElement> = Modifier(),
+    modifier: Modifier<in RectElement> = Modifier(),
     size: FloatSize = FloatSize(10, 10),
     color: Int = Color.RED,
     shadowInfo: ShadowInfo? = null,
@@ -57,7 +57,7 @@ fun Layout.rect(
  * 圆弧构建
  */
 fun Layout.arc(
-    modifier: Modifier<ArcElement> = Modifier(),
+    modifier: Modifier<in ArcElement> = Modifier(),
     oval: Rect,
     startAngle: Float,
     sweepAngle: Float,
@@ -75,7 +75,7 @@ fun Layout.arc(
  * 圆形构建
  */
 fun Layout.circular(
-    modifier: Modifier<ArcElement> = Modifier(),
+    modifier: Modifier<in ArcElement> = Modifier(),
     radius: Float, shadowInfo: ShadowInfo? = null, paintBuilder: Paint.() -> Unit = {},
     block: ArcElement.() -> Unit = {}
 ) = ArcElement.circular(radius, shadowInfo, paintBuilder).also {
@@ -89,7 +89,7 @@ fun Layout.circular(
  * 圆角矩形构建
  */
 fun Layout.rRect(
-    modifier: Modifier<RRectElement> = Modifier(),
+    modifier: Modifier<in RRectElement> = Modifier(),
     rRect: RRect,
     shadowInfo: ShadowInfo? = null,
     paintBuilder: Paint.() -> Unit = {},
@@ -102,7 +102,7 @@ fun Layout.rRect(
 }
 
 fun Layout.rRect(
-    modifier: Modifier<RRectElement> = Modifier(),
+    modifier: Modifier<in RRectElement> = Modifier(),
     width: Number, height: Number, radius: Number,
     shadowInfo: ShadowInfo? = null,
     paintBuilder: Paint.() -> Unit = {},
@@ -115,7 +115,7 @@ fun Layout.rRect(
 }
 
 fun Layout.rRect(
-    modifier: Modifier<RRectElement> = Modifier(),
+    modifier: Modifier<in RRectElement> = Modifier(),
     width: Number, height: Number, xRad: Number, yRad: Number,
     shadowInfo: ShadowInfo? = null,
     paintBuilder: Paint.() -> Unit = {},
@@ -128,7 +128,7 @@ fun Layout.rRect(
 }
 
 fun Layout.rRect(
-    modifier: Modifier<RRectElement> = Modifier(),
+    modifier: Modifier<in RRectElement> = Modifier(),
     width: Number, height: Number, tlRad: Number, trRad: Number, brRad: Number, blRad: Number,
     shadowInfo: ShadowInfo? = null,
     paintBuilder: Paint.() -> Unit = {},

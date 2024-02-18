@@ -6,7 +6,7 @@ import org.sereinfish.catcat.image.skiko.tools.element.elements.layout.RowLayout
 import org.sereinfish.catcat.image.skiko.tools.element.measure.alignment.Alignment
 
 fun Layout.row(
-    modifier: Modifier<RowLayout> = Modifier(),
+    modifier: Modifier<in RowLayout> = Modifier(),
     alignment: Alignment = Alignment.LEFT,
     block: RowLayout.() -> Unit = {}
 ) = RowLayout(alignment).also {

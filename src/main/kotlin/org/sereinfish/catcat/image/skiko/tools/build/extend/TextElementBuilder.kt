@@ -14,7 +14,7 @@ import org.sereinfish.catcat.image.skiko.tools.element.measure.alignment.and
  * 在布局中添加元素
  */
 fun Layout.text(
-    modifier: Modifier<TextElement>? = null,
+    modifier: Modifier<in TextElement>? = null,
     text: String,
     color: Int = Color.BLACK, // 字体颜色
     wordSpace: Number = 0f, // 字间距
@@ -46,7 +46,7 @@ fun Layout.text(
 }
 
 fun Layout.text(
-    modifier: Modifier<TextElement>? = null,
+    modifier: Modifier<in TextElement>? = null,
     text: String,
     typeface: Typeface = Typeface.makeDefault(),
     fontSize: Number = 18,
@@ -75,7 +75,7 @@ fun Layout.text(
 }
 
 fun Layout.text(
-    modifier: Modifier<TextElement>? = null,
+    modifier: Modifier<in TextElement>? = null,
     text: String,
     fontName: String = "黑体",
     fontStyle: FontStyle = FontStyle.NORMAL,
@@ -105,8 +105,8 @@ fun Layout.text(
 }
 
 fun Layout.textField(
-    modifier: Modifier<TextFieldElement>? = null,
-    subModifier: Modifier<TextElement>? = null, // 子元素的modifier
+    modifier: Modifier<in TextFieldElement>? = null,
+    subModifier: Modifier<in TextElement>? = null, // 子元素的modifier
     text: String,
     color: Int = Color.BLACK, // 字体颜色
     wordSpace: Number = 0f, // 字间距
@@ -143,8 +143,8 @@ fun Layout.textField(
 }
 
 fun Layout.textField(
-    modifier: Modifier<TextFieldElement>? = null,
-    subModifier: Modifier<TextElement>? = null, // 子元素的modifier
+    modifier: Modifier<in TextFieldElement>? = null,
+    subModifier: Modifier<in TextElement>? = null, // 子元素的modifier
     text: String,
     typeface: Typeface = Typeface.makeDefault(),
     fontSize: Number = 18,
@@ -174,8 +174,8 @@ fun Layout.textField(
 }
 
 fun Layout.textField(
-    modifier: Modifier<TextFieldElement>? = null,
-    subModifier: Modifier<TextElement>? = null, // 子元素的modifier
+    modifier: Modifier<in TextFieldElement>? = null,
+    subModifier: Modifier<in TextElement>? = null, // 子元素的modifier
     text: String,
     fontName: String = "黑体",
     fontStyle: FontStyle = FontStyle.NORMAL,

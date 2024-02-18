@@ -7,8 +7,8 @@ import org.sereinfish.catcat.image.skiko.tools.element.measure.alignment.Alignme
 import org.sereinfish.catcat.image.skiko.tools.element.measure.alignment.and
 
 fun Layout.colum(
-    modifier: Modifier<ColumLayout>? = null,
-    alignment: Alignment = org.sereinfish.catcat.image.skiko.tools.element.measure.alignment.Alignment.LEFT.and(org.sereinfish.catcat.image.skiko.tools.element.measure.alignment.Alignment.TOP),
+    modifier: Modifier<in ColumLayout>? = null,
+    alignment: Alignment = Alignment.LEFT.and(Alignment.TOP),
     block: ColumLayout.() -> Unit = {}
 ): ColumLayout {
     val layout = ColumLayout(alignment)
