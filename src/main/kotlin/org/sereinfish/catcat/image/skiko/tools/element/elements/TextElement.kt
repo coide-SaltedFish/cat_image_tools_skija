@@ -99,7 +99,8 @@ open class TextElement(
      * 获取单个字符大小
      */
     protected fun getWordDrawRectSize(c: Char): Rect {
-        if (c == ' ') return font.measureText("▌", paint)
+        if ("，。？＇！……".contains(c)) return font.measureText("■", paint)
+        if (",.?\\'! ……".contains(c)) return font.measureText("▌", paint)
         return font.measureText("$c", paint)
     }
 
