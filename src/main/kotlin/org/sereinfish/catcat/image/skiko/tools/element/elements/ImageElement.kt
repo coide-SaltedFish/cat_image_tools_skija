@@ -82,7 +82,7 @@ class ImageElement(
         // 请求最大大小
         val maxSize = parent?.subElementMaxSize(this) ?: FloatSize()
 
-        if (sizeMode.decode().contains(ElementSizeMode.MaxWidth) or sizeMode.decode().contains(ElementSizeMode.MaxHeight)){
+        if (sizeMode.contain(ElementSizeMode.MaxWidth) || sizeMode.contain(ElementSizeMode.MaxHeight)){
             // 计算能完全容纳图像的大小
             val scaleW = maxSize.width / image.width
             val scaleH = maxSize.height / image.height

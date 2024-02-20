@@ -4,14 +4,11 @@ import org.sereinfish.catcat.image.skiko.tools.draw.Draw
 import org.sereinfish.catcat.image.skiko.tools.draw.utils.buildDraw
 import org.sereinfish.catcat.image.skiko.tools.element.context.ElementAttrContext
 import org.sereinfish.catcat.image.skiko.tools.element.draw.ElementDrawChain
-import org.sereinfish.catcat.image.skiko.tools.element.elements.RectElement
 import org.sereinfish.catcat.image.skiko.tools.element.measure.ElementSizeMode
 import org.sereinfish.catcat.image.skiko.tools.element.measure.offset.FloatOffset
 import org.sereinfish.catcat.image.skiko.tools.element.measure.size.FloatRectSize
 import org.sereinfish.catcat.image.skiko.tools.element.measure.size.FloatSize
-import java.util.Vector
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.math.max
 
 abstract class AbstractElement(
     override var parent: Layout? = null, // 父元素
@@ -34,26 +31,11 @@ abstract class AbstractElement(
      * 这个大小是实时计算的
      */
     override fun size(): FloatSize {
-        val size = FloatSize()
-        val modes = sizeMode.decode()
-
         val autoSize = autoSize()
         val valueSize = this.size
         val maxSize = maxSize()
 
-        for (mode in modes){
-            when(mode){
-                ElementSizeMode.AutoWidth -> size.width = autoSize.width
-                ElementSizeMode.AutoHeight -> size.height = autoSize.height
-
-                ElementSizeMode.ValueWidth -> size.width = valueSize.width
-                ElementSizeMode.ValueHeight -> size.height = valueSize.height
-
-                ElementSizeMode.MaxHeight -> size.height = maxSize.height
-                ElementSizeMode.MaxWidth -> size.width = maxSize.width
-            }
-        }
-
+        val size = sizeMode.computeSize(autoSize, valueSize, maxSize)
 
         sizeExtendModules.values.forEach { it(size) }
 
