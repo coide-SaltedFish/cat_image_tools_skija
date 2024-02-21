@@ -1,13 +1,14 @@
 package org.sereinfish.catcat.image.skiko.tools.element.measure
 
-import kotlin.math.abs
+import org.sereinfish.catcat.image.skiko.tools.element.measure.size.FloatSize
 
 /**
  * 元素的大小模式
  *
  */
-class ElementSizeMode(
-    private var value: Int
+@JvmInline
+value class ElementSizeMode internal constructor(
+    private val value: Int
 ) {
     companion object{
         val Auto =          ElementSizeMode(0b001001) // 默认值，元素大小自动计算，超过父布局裁剪显示，没超过根据元素大小显示
@@ -22,58 +23,32 @@ class ElementSizeMode(
     }
 
     infix fun and(other: ElementSizeMode): ElementSizeMode {
-        return ElementSizeMode(value.and(
-            when(other){
-                AutoWidth, ValueWidth, MaxWidth -> 0b111.inv()
-                AutoHeight, ValueHeight, MaxHeight -> 0b111
-                Auto, Value, MaxFill -> Int.MAX_VALUE
-                else -> error("未知的 ElementSizeMode")
-            }
-        ).or(other.value))
+        val widthFlag = (other.value and 0b000111).let { if (it == 0) value and 0b000111 else it }
+        val heightFlag = (other.value and 0b111000).let { if (it == 0) value and 0b111000 else it }
+        return ElementSizeMode(widthFlag or heightFlag)
     }
 
     infix fun not(other: ElementSizeMode): ElementSizeMode {
         return ElementSizeMode(value.and(other.value.inv()))
     }
 
-    /**
-     * 解构模式
-     */
-    fun decode(): List<ElementSizeMode> {
-        var v = abs(value)
-        var step = 0
-        return buildList {
-            while (v > 0){
-                if (v.and(0x1) == 0x1){
-                    add(ElementSizeMode(0x1.shl(step)))
-                }
-                v = v.shr(1)
-                step ++
-            }
-        }
+    fun computeSize(autoSize: FloatSize, valueSize: FloatSize, maxSize: FloatSize): FloatSize {
+        val widthFlag = value and 0b000111
+        val heightFlag = value and 0b111000 shr 3
+        val width = autoSize.width * (widthFlag and 1) + valueSize.width * (widthFlag shr 1 and 1)  + maxSize.width * (widthFlag shr 2)
+        val height = autoSize.height * (heightFlag and 1) + valueSize.height * (heightFlag shr 1 and 1)  + maxSize.height * (heightFlag shr 2)
+        return FloatSize(width = width, height = height)
     }
 
     /**
      * 包含某个模式
      */
     fun contain(mode: ElementSizeMode): Boolean {
-        return decode().contains(mode)
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as ElementSizeMode
-
-        return value == other.value
+        return value and mode.value == mode.value
     }
 
     override fun toString(): String {
         return "ElementSizeMode(value=${value.toString(2)})"
     }
 
-    override fun hashCode(): Int {
-        return value
-    }
 }
