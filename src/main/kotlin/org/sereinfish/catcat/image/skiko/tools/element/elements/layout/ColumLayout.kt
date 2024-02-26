@@ -27,9 +27,9 @@ open class ColumLayout(
         return FloatSize().apply {
             subElements.forEach {
                 if (it.sizeMode.contain(ElementSizeMode.MaxHeight).not())
-                    height += it.size().height
+                    height += it.size.height
                 if (it.sizeMode.contain(ElementSizeMode.MaxWidth).not())
-                    width = maxOf(width, it.size().width)
+                    width = maxOf(width, it.size.width)
             }
         }.add(padding.size())
     }
@@ -39,12 +39,28 @@ open class ColumLayout(
      */
     private fun getSubElementY(element: Element): Float =
         subElements.sumOrEnd({ it == element }){
-            it.size().height
+            it.size.height
         }
 
-    override fun updateElementInfo() {
-        super<WeightLayout>.updateElementInfo()
-        super<AbstractLayout>.updateElementInfo()
+    /**
+     * 更新布局大小
+     * 1. 更新子元素大小
+     * 2. 更新自己大小
+     * 3. 作为比例布局更新大小
+     * 4. 再次更新max子元素大小
+     */
+    override fun updateSize() {
+        if (sizeMode == ElementSizeMode.Value || sizeMode == ElementSizeMode.MaxFill){
+            super<AbstractLayout>.updateSize()
+            super<WeightLayout>.updateSize()
+
+            subElements.forEach { it.updateSize() }
+        }else {
+            subElements.forEach { it.updateSize() }
+            super<AbstractLayout>.updateSize()
+            super<WeightLayout>.updateSize()
+            subElements.filter { ElementSizeMode.MaxFill.contain(it.sizeMode) }.forEach { it.updateSize() }
+        }
     }
 
     /**
@@ -59,7 +75,7 @@ open class ColumLayout(
                     sum = size.height
                     break
                 }
-                sum += subElement.size().height
+                sum += subElement.size.height
             }
             sum
         }
@@ -67,7 +83,7 @@ open class ColumLayout(
 
         val allOffset = alignment(size, FloatSize(subElementsWidth, subElementsHeight)) // 全局偏移
 
-        val subOffset = alignment(FloatSize(subElementsWidth, element.size.height), element.size) // 局部偏移
+        val subOffset = alignment(FloatSize(subElementsWidth, element.size.height), element.size.copy()) // 局部偏移
 
         val x = allOffset.x + subOffset.x
 
@@ -79,8 +95,8 @@ open class ColumLayout(
      */
     override fun subElementMaxSize(element: Element): FloatSize {
         val size = size.copy().minus(padding.size())
-        subElements.forEachOrEnd({ it == element }){
-            size.minus(it.size.copy(width = 0f))
+        subElements.forEachOrEnd({ it == element && size.height > 0 }){
+            size.height -= it.size.height
         }
 
         // 当布局为自动时，不支持最大化子元素
@@ -88,8 +104,12 @@ open class ColumLayout(
             size.height = 0f
 
         // 计算比例坐标
-        if (element.sizeMode.contain(ElementSizeMode.MaxHeight) && weightSum != 0f){
+        if (element.sizeMode.contain(ElementSizeMode.MaxHeight) && weightSum.height != 0f){
             size.height = subElementWeightSize(element).height
+        }
+
+        if (element.sizeMode.contain(ElementSizeMode.MaxWidth) && weightSum.width != 0f){
+            size.width = subElementWeightSize(element).width
         }
 
         return size.nonNegativeValue()

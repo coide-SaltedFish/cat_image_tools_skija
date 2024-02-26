@@ -36,10 +36,16 @@ interface Element: SizeLayout {
 
     /**
      * 更新元素的信息
-     *
-     * 重新计算元素的大小以及重新计算元素的一些属性
+     * 计算元素的一些属性
      */
     fun updateElementInfo()
+
+    /**
+     * 更新元素大小
+     */
+    fun updateSize() {
+        size = size()
+    }
 
     /**
      * 传入绘制上下文，绘制此元素

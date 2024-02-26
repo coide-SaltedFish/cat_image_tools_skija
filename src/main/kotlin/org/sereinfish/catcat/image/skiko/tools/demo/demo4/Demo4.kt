@@ -4,6 +4,7 @@ import org.jetbrains.skia.Color
 import org.sereinfish.catcat.image.skiko.tools.build.buildImageColumLayout
 import org.sereinfish.catcat.image.skiko.tools.build.extend.*
 import org.sereinfish.catcat.image.skiko.tools.build.modifier.Modifier
+import org.sereinfish.catcat.image.skiko.tools.draw.utils.buildDraw
 import org.sereinfish.catcat.image.skiko.tools.element.Element
 import org.sereinfish.catcat.image.skiko.tools.element.Layout
 import org.sereinfish.catcat.image.skiko.tools.element.elements.RectElement
@@ -23,6 +24,7 @@ fun main() {
             .padding(50)
             .background(Color.WHITE)
     ) {
+
         row(
             Modifier<RowLayout>()
                 .maxWidth()
@@ -31,7 +33,7 @@ fun main() {
             repeat(5){
                 rect(
                     Modifier<RectElement>()
-                        .weight(1)
+                        .weight(width = 1)
                         .maxSize(),
                     color = Color.random()
                 )
@@ -41,7 +43,7 @@ fun main() {
         repeat(5){
             rect(
                 Modifier<RectElement>()
-                    .weight(1 + it * 0.4)
+                    .weight(height = 1 + it * 0.4)
                     .maxSize(),
                 color = Color.random()
             )

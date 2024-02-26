@@ -24,7 +24,7 @@ class ElementImageDraw(
     var paintBuilder: Paint.() -> Unit = {}, // 构建 Paint
 ): Draw, CropLayout, AlignmentLayout {
     override fun draw(canvas: Canvas, context: Context) {
-        val (srcRect, dstRect) = crop(layout.size(), image.size())
+        val (srcRect, dstRect) = crop(layout.size, image.size())
         val offset = alignment(image.size(), srcRect.size())
         canvas.drawImageRect(
             image,

@@ -1,15 +1,15 @@
 package org.sereinfish.catcat.image.skiko.tools.element.elements
 
+import org.jetbrains.skia.*
 import org.sereinfish.catcat.image.skiko.tools.draw.utils.buildDraw
 import org.sereinfish.catcat.image.skiko.tools.element.AbstractElement
+import org.sereinfish.catcat.image.skiko.tools.element.measure.ElementSizeMode
 import org.sereinfish.catcat.image.skiko.tools.element.measure.ShadowInfo
 import org.sereinfish.catcat.image.skiko.tools.element.measure.alignment.Alignment
 import org.sereinfish.catcat.image.skiko.tools.element.measure.alignment.AlignmentLayout
 import org.sereinfish.catcat.image.skiko.tools.element.measure.alignment.and
 import org.sereinfish.catcat.image.skiko.tools.element.measure.offset.FloatOffset
 import org.sereinfish.catcat.image.skiko.tools.element.measure.size.FloatSize
-import org.jetbrains.skia.*
-import org.sereinfish.catcat.image.skiko.tools.element.measure.ElementSizeMode
 import org.sereinfish.catcat.image.skiko.tools.utils.paint
 import org.sereinfish.catcat.image.skiko.tools.utils.saveBlock
 import kotlin.math.roundToInt
@@ -34,6 +34,21 @@ open class TextElement(
 
     protected val paint: Paint get() = buildPaint() // 获取实时构建的 Paint
 
+    /**
+     * 将字符大小存入缓存
+     * 该缓存在一次绘制中只应该更新一次
+     */
+    protected var charsRect: Map<Char, Rect> by attributes.valueOrElse {
+        buildMap {
+            text.toSet().forEach {
+                put(it, font.measureText("$it", paint))
+            }
+
+            put('■', font.measureText("■", paint))
+            put('▌', font.measureText("▌", paint))
+        }
+    }
+
     init {
         // 定义元素绘制器
         elementDraw = buildDraw { context ->
@@ -45,11 +60,11 @@ open class TextElement(
                     val offset = getTextDrawOffset() // 获取起始坐标
 
                     text.forEachIndexed { index, c ->
-                        if (index > 0) offset.x += getIndexCharSize(index - 1) // 计算上一个字符的宽度
+                        if (index > 0) offset.x += getIndexCharWidth(index - 1) // 计算上一个字符的宽度
                         drawString("$c", offset.x, offset.y, font, paint) // 绘制字符
                     }
 
-                    offset.x += getIndexCharSize(text.length - 1)
+                    offset.x += getIndexCharWidth(text.length - 1)
                 }
             }
         }
@@ -59,7 +74,7 @@ open class TextElement(
      * 获取文本绘制坐标
      */
     private fun getTextDrawOffset(): FloatOffset {
-        val rect = font.measureText(text, paint)
+        val rect = getStringDrawRect(text)
 
         val offset = alignment(size.copy().minus(padding.size()), getTextDrawSize()).apply {
             if (isTextCompact)
@@ -78,30 +93,52 @@ open class TextElement(
     }
 
     protected fun getTextDrawSize(str: String): FloatSize {
-        val rect = font.measureText(str, paint)
+        val rect = getStringDrawRect(str)
         var width = 0f
         for (i in str.indices){
-            width += getIndexCharSize(i)
+            width += getIndexCharWidth(i)
         }
+        width += (text.length - 1) * wordSpace
         return FloatSize(width, rect.height)
     }
 
     /**
      * 获取指定位置字符大小
      */
-    private fun getIndexCharSize(i: Int): Float {
-        val rect = getWordDrawRectSize(text[i])
+    private fun getIndexCharWidth(i: Int): Float {
+        val rect = getCharDrawRect(text[i])
+        var width = rect.width
 
-        return rect.width + wordSpace + rect.left
+        if (i != 0)
+            width += wordSpace
+        if (isTextCompact.not())
+            width += rect.left
+
+        return width
+    }
+
+    protected fun getStringDrawRect(text: String): Rect {
+        var l = 0f
+        var r = 0f
+        var t = 0f
+        var b = 0f
+        text.map { getCharDrawRect(it) }.forEach {
+            l = minOf(l, it.left)
+            r += it.right
+            t = minOf(t, it.top)
+            b = maxOf(b, it.bottom)
+        }
+
+        return Rect.makeLTRB(l, t, r, b)
     }
 
     /**
      * 获取单个字符大小
      */
-    protected fun getWordDrawRectSize(c: Char): Rect {
-        if ("，。？＇！……".contains(c)) return font.measureText("■", paint)
-        if (",.?\\'! ……".contains(c)) return font.measureText("▌", paint)
-        return font.measureText("$c", paint)
+    protected fun getCharDrawRect(c: Char): Rect {
+        if ("，。？＇！……".contains(c)) return charsRect['■'] ?: font.measureText("■", paint)
+        if (",.?\\'! ……".contains(c)) return charsRect['▌'] ?: font.measureText("▌", paint)
+        return charsRect[c] ?: font.measureText("$c", paint)
     }
 
     /**

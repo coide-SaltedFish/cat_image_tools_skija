@@ -19,7 +19,8 @@ fun main() {
         modifier = Modifier<ColumLayout>()
             .width(200)
 //            .padding(5)
-            .background(Color.WHITE)
+            .background(Color.WHITE),
+        enableOpenGL = true
     ) {
         textField(
             modifier = Modifier<TextFieldElement>()

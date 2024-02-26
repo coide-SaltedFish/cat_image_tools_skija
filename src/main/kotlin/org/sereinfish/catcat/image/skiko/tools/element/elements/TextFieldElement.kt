@@ -17,9 +17,12 @@ import java.util.Vector
 
 /**
  * 文本域
+ *
+ * TODO 取消使用ColumLayout容器
  */
 class TextFieldElement(
-    text: String, // 字符串
+    val text: String, // 字符串
+    var subModifier: Modifier<in TextElement> = Modifier(),
     var font: Font = Font(Typeface.makeFromName("黑体", FontStyle.NORMAL), 18f), // 字体
     var wordSpace: Float = 0f, // 字间距
     var lineSpace: Float = 0f, // 行间距
@@ -30,38 +33,40 @@ class TextFieldElement(
     var paintBuilder: (Paint.() -> Unit)? = null, // 画笔构建
     var isTextCompact: Boolean = false // 紧凑绘制文本
 ): ColumLayout(alignment) {
-    protected var isUpdateField = true
+    /**
+     * 将字符大小存入缓存
+     * 该缓存在一次绘制中只应该更新一次
+     */
+    protected var charsRect: Map<Char, Rect> by attributes.valueOrElse {
+        buildMap {
+            text.toSet().forEach {
+                put(it, font.measureText("$it", paint))
+            }
 
-    // 修改子元素
-    val subElementBuilder: Vector<TextElement.() -> Unit> = Vector()
-
-    var text: String = text
-        set(value) {
-            field = value
-            isUpdateField = true
-            updateTextField()
+            put('■', font.measureText("■", paint))
+            put('▌', font.measureText("▌", paint))
         }
+    }
 
     protected val paint: Paint get() = buildPaint() // 获取实时构建的 Paint
 
     // 完成文本行分割，然后依次添加到布局
     fun updateTextField(){
-        if (isUpdateField.not()) return
-        isUpdateField = false
-
         if (subElements.isNotEmpty()) subElements.clear()
         stringLines().forEachWithSeparator({
-            row(Modifier<RowLayout>().size(0.1, lineSpace))
+            if (lineSpace > 0)
+                row(Modifier<RowLayout>().size(0.1, lineSpace))
         }) {
             add(TextElement(it, font, wordSpace, color, shadow, paintBuilder = paintBuilder, isTextCompact = isTextCompact).apply {
-                subElementBuilder.forEach { it() }
+                subModifier.modifier(this)
             })
         }
     }
 
-    override fun updateElementInfo() {
+    override fun updateSize() {
+        size = size()
         updateTextField()
-        super.updateElementInfo()
+        super.updateSize()
     }
 
     /**
@@ -126,22 +131,38 @@ class TextFieldElement(
 //    }
 
     protected fun getTextDrawSize(str: String): FloatSize {
-        val rect = font.measureText(str, paint)
+        val rect = getStringDrawRect(str)
         var width = 0f
         for (i in str.indices){
-            val cr = getWordDrawRectSize(str[i])
+            val cr = getCharDrawRect(str[i])
             width += cr.width + wordSpace + cr.left
         }
+        width += (text.length - 1) * wordSpace
         return FloatSize(width, rect.height)
+    }
+
+    protected fun getStringDrawRect(text: String): Rect {
+        var l = 0f
+        var r = 0f
+        var t = 0f
+        var b = 0f
+        text.map { getCharDrawRect(it) }.forEach {
+            l = minOf(l, it.left)
+            r += it.right
+            t = minOf(t, it.top)
+            b = maxOf(b, it.bottom)
+        }
+
+        return Rect.makeLTRB(l, t, r, b)
     }
 
     /**
      * 获取单个字符大小
      */
-    protected fun getWordDrawRectSize(c: Char): Rect {
-        if ("，。？＇！……".contains(c)) return font.measureText("■", paint)
-        if (",.?\\'! ……".contains(c)) return font.measureText("▌", paint)
-        return font.measureText("$c", paint)
+    protected fun getCharDrawRect(c: Char): Rect {
+        if ("，。？＇！……".contains(c)) return charsRect['■'] ?: font.measureText("■", paint)
+        if (",.?\\'! ……".contains(c)) return charsRect['▌'] ?: font.measureText("▌", paint)
+        return charsRect[c] ?: font.measureText("$c", paint)
     }
 
     /**

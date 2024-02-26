@@ -13,6 +13,7 @@ import org.sereinfish.catcat.image.skiko.tools.element.elements.layout.AbsoluteL
 import org.sereinfish.catcat.image.skiko.tools.element.elements.layout.ColumLayout
 import org.sereinfish.catcat.image.skiko.tools.element.elements.layout.RowLayout
 import org.sereinfish.catcat.image.skiko.tools.element.measure.CropMode
+import org.sereinfish.catcat.image.skiko.tools.element.measure.ElementSizeMode
 import org.sereinfish.catcat.image.skiko.tools.element.measure.ShadowInfo
 import org.sereinfish.catcat.image.skiko.tools.element.measure.alignment.Alignment
 import org.sereinfish.catcat.image.skiko.tools.element.measure.alignment.and
@@ -34,7 +35,8 @@ fun main() {
             .width(800)
             .padding(20)
             .rRectShape(30, stroke = true, strokeColor = Color.BLACK.colorCopy(a = 50), padding = padding(10))
-            .background(Color.WHITE)
+            .background(Color.WHITE),
+        enableOpenGL = false
     ) {
         // 用户基本信息
         abs(

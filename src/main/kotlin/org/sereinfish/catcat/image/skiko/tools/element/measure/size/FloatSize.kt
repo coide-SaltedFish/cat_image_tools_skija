@@ -34,6 +34,8 @@ data class FloatSize(
         return this
     }
 
+    fun isZero(): Boolean = width == 0f && height == 0f
+
     override operator fun div(other: Number): FloatSize {
         width /= other.toFloat()
         height /= other.toFloat()
@@ -63,6 +65,7 @@ data class FloatSize(
         height %= other.toFloat()
         return this
     }
+
 
     override fun toString(): String {
         return "FloatSize(width=$width, height=$height)"

@@ -2,9 +2,11 @@ import org.jetbrains.skia.*
 import org.sereinfish.catcat.image.skiko.tools.build.buildImageColumLayout
 import org.sereinfish.catcat.image.skiko.tools.build.extend.*
 import org.sereinfish.catcat.image.skiko.tools.build.modifier.Modifier
+import org.sereinfish.catcat.image.skiko.tools.draw.utils.buildDraw
 import org.sereinfish.catcat.image.skiko.tools.element.elements.*
 import org.sereinfish.catcat.image.skiko.tools.element.elements.layout.AbsoluteLayout
 import org.sereinfish.catcat.image.skiko.tools.element.elements.layout.ColumLayout
+import org.sereinfish.catcat.image.skiko.tools.element.elements.layout.RowLayout
 import org.sereinfish.catcat.image.skiko.tools.element.measure.CropMode
 import org.sereinfish.catcat.image.skiko.tools.element.measure.ShadowInfo
 import org.sereinfish.catcat.image.skiko.tools.element.measure.alignment.Alignment
@@ -24,8 +26,9 @@ fun main() {
             .background(imageFile)
             .background(Color.BLACK.colorCopy(a = 40))
             .blurBackground(4f)
-            .size(500, 500)
-            .alignment(Alignment.CENTER_HORIZONTAL and Alignment.BOTTOM)
+            .width(500)
+            .alignment(Alignment.CENTER_HORIZONTAL and Alignment.BOTTOM),
+        enableOpenGL = true
     ) {
 
         image(
@@ -35,7 +38,8 @@ fun main() {
                     antiAlias = true,
                     shadowInfo = ShadowInfo(2, 5, Color.BLACK),
                     padding = padding(10)
-                ),
+                )
+                .border(),
             image = imageFile,
             cropMode = CropMode.FillWidth,
             samplingMode = SamplingMode.CATMULL_ROM,
@@ -57,7 +61,11 @@ fun main() {
         ) {
             BOTTOM and RIGHT place text(text = "底部靠右")
 
-            text(text = "居中") on CENTER
+            text(
+                modifier = Modifier<TextElement>()
+                    .border(),
+                text = "居中"
+            ) on CENTER
 
             text(
                 modifier = Modifier<TextElement>()
@@ -71,9 +79,10 @@ fun main() {
             + text(text = "Hello world")
         }
 
-        colum(
-            modifier = Modifier<ColumLayout>()
+        row (
+            modifier = Modifier<RowLayout>()
                 .blurBackground(10)
+                .border()
                 .size(50)
                 .maxWidth()
         )

@@ -13,6 +13,20 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 
+private var runTimeIndex = 0
+fun <T> runTime(message: String? = null, index: Int? = null, prt: (String) -> Unit = { println(it) }, block: () -> T): T {
+    val start = System.currentTimeMillis()
+    val ret = block()
+    val end = System.currentTimeMillis()
+    prt(buildString {
+        message?.let {
+            append("$it, ")
+        }
+        append("运行耗时[${index ?: runTimeIndex ++}]: ${end - start} ms")
+    })
+    return ret
+}
+
 inline fun CharSequence.sumOf(selector: (Char) -> Float): Float {
     var sum = 0f
     for (element in this) {

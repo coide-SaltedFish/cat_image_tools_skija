@@ -9,9 +9,9 @@ import org.sereinfish.catcat.image.skiko.tools.utils.sumSizeOf
 
 interface WeightLayout: Layout {
     // 元素占比总和
-    var weightSum: Float
+    var weightSum: FloatSize
         get() = attributes.getOrElse("weightSum") {
-            subElements.sumOf { it.weight }
+            subElements.sumSizeOf { it.weight }
         }
         set(value) = attributes.set("weightSum", value)
 
@@ -27,26 +27,29 @@ interface WeightLayout: Layout {
      * 仅在子元素设置为最大大小时有效
      * 该属性返回的值由布局提供
      */
-    var Element.weight: Float
-        get() = this.attributes.getOrElse("weight") { 0f }
+    var Element.weight: FloatSize
+        get() = this.attributes.getOrElse("weight") { FloatSize() }
         set(value) { this.attributes["weight"] = value }
 
     /**
      * Modifier 扩展方法，设置元素的权重大小
      */
     fun <T: Element> Modifier<T>.weight(value: Number) = modifier {
-        this.weight = value.toFloat()
+        this.weight = FloatSize(value.toFloat())
     }
 
+    fun <T: Element> Modifier<T>.weight(width: Number = 0, height: Number = 0) = modifier {
+        this.weight = FloatSize(width.toFloat(), height.toFloat())
+    }
 
     /**
-     * 参数更新
+     * 作为比例布局，计算子元素大小
      */
-    override fun updateElementInfo() {
+    override fun updateSize() {
         val padding = attributes.getOrDefault("padding", FloatRectSize())
 
-        weightSum = subElements.sumOf { it.weight }
-        weightMaxSize = size().minus(padding.size()).minus(subElements.sumSizeOf {
+        weightSum = subElements.sumSizeOf { it.weight }
+        weightMaxSize = size.copy().minus(padding.size()).minus(subElements.sumSizeOf {
             val w = if (it.sizeMode.contain(ElementSizeMode.MaxWidth)) 0f else it.size.width
             val h = if (it.sizeMode.contain(ElementSizeMode.MaxHeight)) 0f else it.size.height
             FloatSize(w, h)
@@ -57,6 +60,9 @@ interface WeightLayout: Layout {
      * 计算子元素所能拥有的大小
      */
     fun subElementWeightSize(element: Element): FloatSize {
-        return (weightMaxSize.copy() * (element.weight / weightSum))
+        return FloatSize(
+            weightMaxSize.width * (element.weight.width / weightSum.width),
+            weightMaxSize.height * (element.weight.height / weightSum.height)
+        )
     }
 }

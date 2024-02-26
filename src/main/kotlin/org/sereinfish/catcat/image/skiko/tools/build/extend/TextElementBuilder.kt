@@ -120,6 +120,7 @@ fun Layout.textField(
 ): TextFieldElement {
     val textElement = TextFieldElement(
         text,
+        subModifier = subModifier ?: Modifier(),
         font = font,
         color = color,
         wordSpace = wordSpace.toFloat(),
@@ -130,11 +131,6 @@ fun Layout.textField(
         isTextCompact = isTextCompact
     )
     modifier?.modifier(textElement)
-    subModifier?.let { m ->
-        textElement.subElementBuilder.add {
-            m.modifier(this)
-        }
-    }
     textElement.block()
 
     add(textElement)

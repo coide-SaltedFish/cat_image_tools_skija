@@ -4,6 +4,7 @@ import org.sereinfish.catcat.image.skiko.tools.draw.Draw
 import org.sereinfish.catcat.image.skiko.tools.draw.utils.buildDraw
 import org.sereinfish.catcat.image.skiko.tools.element.context.ElementAttrContext
 import org.sereinfish.catcat.image.skiko.tools.element.draw.ElementDrawChain
+import org.sereinfish.catcat.image.skiko.tools.element.elements.layout.AbsoluteLayout
 import org.sereinfish.catcat.image.skiko.tools.element.measure.ElementSizeMode
 import org.sereinfish.catcat.image.skiko.tools.element.measure.offset.FloatOffset
 import org.sereinfish.catcat.image.skiko.tools.element.measure.size.FloatRectSize
@@ -31,12 +32,32 @@ abstract class AbstractElement(
      * 这个大小是实时计算的
      */
     override fun size(): FloatSize {
-        val autoSize = autoSize()
-        val valueSize = this.size
-        val maxSize = maxSize()
+        val size = FloatSize()
+        if (ElementSizeMode.Auto.contain(sizeMode)){
+            val autoSize = autoSize()
+            if (sizeMode.contain(ElementSizeMode.AutoWidth))
+                size.width = autoSize.width
+            if (sizeMode.contain(ElementSizeMode.AutoHeight))
+                size.height = autoSize.height
+        }
 
-        val size = sizeMode.computeSize(autoSize, valueSize, maxSize)
+        if (ElementSizeMode.Value.contain(sizeMode)){
+            if (sizeMode.contain(ElementSizeMode.ValueWidth))
+                size.width = this.size.width
+            if (sizeMode.contain(ElementSizeMode.ValueHeight))
+                size.height = this.size.height
+        }
 
+        if (ElementSizeMode.MaxFill.contain(sizeMode)){
+            val maxSize = maxSize()
+
+            if (sizeMode.contain(ElementSizeMode.MaxWidth))
+                size.width = maxSize.width
+            if (sizeMode.contain(ElementSizeMode.MaxHeight))
+                size.height = maxSize.height
+        }
+
+        // 使用扩展计算大小
         sizeExtendModules.values.forEach { it(size) }
 
         return size
@@ -50,12 +71,11 @@ abstract class AbstractElement(
     }
 
     /**
-     * 基本实现
+     * 计算元素属性
+     *
+     * 计算元素绘制坐标
      */
     override fun updateElementInfo() {
-        // 计算大小
-        size = size()
-
         val parentPadding: FloatRectSize = parent?.attributes?.get("padding") as? FloatRectSize ?: FloatRectSize()
         // 计算相对坐标
         attributes.offset = parent?.subElementOffset(this)?.copy() ?: FloatOffset()

@@ -44,7 +44,7 @@ value class ElementSizeMode internal constructor(
      * 包含某个模式
      */
     fun contain(mode: ElementSizeMode): Boolean {
-        return value and mode.value == mode.value
+        return value and mode.value != 0
     }
 
     override fun toString(): String {

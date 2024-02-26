@@ -19,16 +19,32 @@ class RowLayout(
         return FloatSize().apply {
             subElements.forEach {
                 if (it.sizeMode.contain(ElementSizeMode.MaxHeight).not())
-                    height = maxOf(height, it.size().height)
+                    height = maxOf(height, it.size.height)
                 if (it.sizeMode.contain(ElementSizeMode.MaxWidth).not())
-                    width += it.size().width
+                    width += it.size.width
             }
         }.add(padding.size())
     }
 
-    override fun updateElementInfo() {
-        super<WeightLayout>.updateElementInfo()
-        super<AbstractLayout>.updateElementInfo()
+    /**
+     * 更新布局大小
+     * 1. 更新子元素大小
+     * 2. 更新自己大小
+     * 3. 作为比例布局更新大小
+     * 4. 再次更新max子元素大小
+     */
+    override fun updateSize() {
+        if (sizeMode == ElementSizeMode.Value || sizeMode == ElementSizeMode.MaxFill){
+            super<AbstractLayout>.updateSize()
+            super<WeightLayout>.updateSize()
+
+            subElements.forEach { it.updateSize() }
+        }else {
+            subElements.forEach { it.updateSize() }
+            super<AbstractLayout>.updateSize()
+            super<WeightLayout>.updateSize()
+            subElements.filter { ElementSizeMode.MaxFill.contain(it.sizeMode) }.forEach { it.updateSize() }
+        }
     }
 
     override fun subElementOffset(element: Element): FloatOffset {
@@ -41,7 +57,7 @@ class RowLayout(
                     width = size.width
                     break
                 }
-                width += subElement.size().width
+                width += subElement.size.width
             }
             width
         }
@@ -50,7 +66,7 @@ class RowLayout(
 
         val allOffset = alignment(size, FloatSize(subElementsWidth, subElementsHeight)) // 全局偏移
 
-        val subOffset = alignment(FloatSize(element.size.width, subElementsHeight), element.size) // 局部偏移
+        val subOffset = alignment(FloatSize(element.size.width, subElementsHeight), element.size.copy()) // 局部偏移
 
         val y = allOffset.y + subOffset.y
         // 计算已计算子元素宽度，然后加上默认偏移
@@ -61,7 +77,7 @@ class RowLayout(
     override fun subElementMaxSize(element: Element): FloatSize {
         val size = size.copy().minus(padding.size())
         subElements.forEachOrEnd({ it == element }){
-            size.minus(it.size.copy(height = 0f))
+            size.width -= it.size.width
         }
 
         // 当布局为自动时，不支持最大化子元素
@@ -71,7 +87,12 @@ class RowLayout(
         if (sizeMode.contain(ElementSizeMode.AutoHeight))
             size.height = this.size.height - padding.size().height
 
-        if (element.sizeMode.contain(ElementSizeMode.MaxWidth) && weightSum != 0f){
+        // 比例
+        if (element.sizeMode.contain(ElementSizeMode.MaxHeight) && weightSum.height != 0f){
+            size.height = subElementWeightSize(element).height
+        }
+
+        if (element.sizeMode.contain(ElementSizeMode.MaxWidth) && weightSum.width != 0f){
             size.width = subElementWeightSize(element).width
         }
 

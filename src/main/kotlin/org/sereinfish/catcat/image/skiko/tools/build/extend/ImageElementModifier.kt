@@ -17,7 +17,15 @@ fun Modifier<ImageElement>.imageBlur(
     val old = paintBuilder
     paintBuilder = {
         old(this@modifier)
-        imageFilter = ImageFilter.makeCompose(imageFilter, ImageFilter.makeBlur(sigmaX.toFloat(), sigmaY.toFloat(), FilterTileMode.CLAMP, ImageFilter.makeEdgeExtension(this@modifier.size())))
+        imageFilter = ImageFilter.makeCompose(
+            imageFilter,
+            ImageFilter.makeBlur(
+                sigmaX.toFloat(),
+                sigmaY.toFloat(),
+                FilterTileMode.CLAMP,
+                ImageFilter.makeEdgeExtension(this@modifier.size)
+            )
+        )
     }
 }
 

@@ -39,19 +39,23 @@ abstract class AbstractLayout(
         }
     }
 
+    /**
+     * 更新布局大小
+     *
+     * 1. 计算除开max大小的子元素大小
+     * 2. 计算布局大小
+     * 3. 计算max子元素大小
+     */
+    // abstract override fun updateSize()
+
+    /**
+     * 更新布局信息数据
+     */
     override fun updateElementInfo() {
         // 更新自己的数据
         super.updateElementInfo()
 
         // 更新子元素的数据
         subElements.forEach { it.updateElementInfo() }
-
-        size = size()
-
-        subElements.filter {
-            it.sizeMode.contain(ElementSizeMode.MaxHeight) or it.sizeMode.contain(ElementSizeMode.MaxWidth)
-        }.forEach {
-            it.updateElementInfo()
-        }
     }
 }
