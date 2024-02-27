@@ -23,9 +23,8 @@ fun main() {
         enableOpenGL = true
     ) {
         textField(
-            modifier = Modifier<TextFieldElement>()
-                .maxWidth(),
-            subModifier = Modifier<TextElement>()
+            modifier = Modifier<TextElement>()
+                .maxWidth()
                 .textShadow(1, 2, Color.RED)
                 .padding(4),
             lineSpace = 5,

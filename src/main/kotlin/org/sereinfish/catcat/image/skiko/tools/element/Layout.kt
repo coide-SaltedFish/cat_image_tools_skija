@@ -49,5 +49,6 @@ interface Layout: Element {
     /**
      * 子元素可使用最大大小
      */
-    fun subElementMaxSize(element: Element): FloatSize
+    fun subElementMaxWidth(element: Element): Float
+    fun subElementMaxHeight(element: Element): Float
 }

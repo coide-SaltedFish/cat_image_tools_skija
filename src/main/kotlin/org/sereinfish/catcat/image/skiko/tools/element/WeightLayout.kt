@@ -59,10 +59,9 @@ interface WeightLayout: Layout {
     /**
      * 计算子元素所能拥有的大小
      */
-    fun subElementWeightSize(element: Element): FloatSize {
-        return FloatSize(
-            weightMaxSize.width * (element.weight.width / weightSum.width),
-            weightMaxSize.height * (element.weight.height / weightSum.height)
-        )
-    }
+    fun subWeightWidth(element: Element): Float =
+        weightMaxSize.width * (element.weight.width / weightSum.width)
+
+    fun subWeightHeight(element: Element): Float =
+        weightMaxSize.height * (element.weight.height / weightSum.height)
 }

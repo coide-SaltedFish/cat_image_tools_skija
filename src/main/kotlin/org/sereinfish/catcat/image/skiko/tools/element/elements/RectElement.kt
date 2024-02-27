@@ -14,8 +14,8 @@ import org.sereinfish.catcat.image.skiko.tools.utils.paint
 import org.sereinfish.catcat.image.skiko.tools.utils.saveBlock
 
 class RectElement(
-    var width: Float,
-    var height: Float,
+    var widthRect: Float,
+    var heightRect: Float,
     var color: Int,
     override var shadowInfo: ShadowInfo? = null,
     var paintBuilder: Paint.(element: RectElement) -> Unit = {},
@@ -44,9 +44,8 @@ class RectElement(
         paintBuilder(this@RectElement)
     }
 
-    override fun autoSize(): FloatSize {
-        return FloatSize(width, height).add(padding.size())
-    }
+    override fun width(): Float = widthRect + padding.width
+    override fun height(): Float = heightRect + padding.height
 
     override fun shapeShadowDraw(): Draw = buildDraw {
         shadowInfo?.let {

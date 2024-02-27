@@ -1,50 +1,48 @@
 package org.sereinfish.catcat.image.skiko.tools.element.elements.layout
 
-import org.sereinfish.catcat.image.skiko.tools.element.AbstractLayout
-import org.sereinfish.catcat.image.skiko.tools.element.Element
-import org.sereinfish.catcat.image.skiko.tools.element.WeightLayout
+import org.sereinfish.catcat.image.skiko.tools.element.*
 import org.sereinfish.catcat.image.skiko.tools.element.measure.ElementSizeMode
 import org.sereinfish.catcat.image.skiko.tools.element.measure.alignment.Alignment
 import org.sereinfish.catcat.image.skiko.tools.element.measure.alignment.AlignmentLayout
 import org.sereinfish.catcat.image.skiko.tools.element.measure.offset.FloatOffset
 import org.sereinfish.catcat.image.skiko.tools.element.measure.size.FloatSize
 import org.sereinfish.catcat.image.skiko.tools.utils.forEachOrEnd
+import org.sereinfish.catcat.image.skiko.tools.utils.sumOf
 import org.sereinfish.catcat.image.skiko.tools.utils.sumOrEnd
 
 class RowLayout(
     override var alignment: Alignment = Alignment.LEFT
 ): AbstractLayout(), AlignmentLayout, WeightLayout {
 
-    override fun autoSize(): FloatSize {
-        return FloatSize().apply {
-            subElements.forEach {
-                if (it.sizeMode.contain(ElementSizeMode.MaxHeight).not())
-                    height = maxOf(height, it.size.height)
-                if (it.sizeMode.contain(ElementSizeMode.MaxWidth).not())
-                    width += it.size.width
-            }
-        }.add(padding.size())
-    }
+    override fun width(): Float = subElements.sumOf { it.width } + padding.width
+    override fun height(): Float = subElements.maxOf { it.height } + padding.height
 
     /**
      * 更新布局大小
-     * 1. 更新子元素大小
-     * 2. 更新自己大小
-     * 3. 作为比例布局更新大小
-     * 4. 再次更新max子元素大小
+     * 1. 更新除Max子元素高度
+     * 2. 更新布局高度
+     * 3. 更新子元素宽度
+     * 4. 更新布局宽度
      */
     override fun updateSize() {
-        if (sizeMode == ElementSizeMode.Value || sizeMode == ElementSizeMode.MaxFill){
-            super<AbstractLayout>.updateSize()
-            super<WeightLayout>.updateSize()
+        initSizeFlag()
 
-            subElements.forEach { it.updateSize() }
-        }else {
-            subElements.forEach { it.updateSize() }
-            super<AbstractLayout>.updateSize()
-            super<WeightLayout>.updateSize()
-            subElements.filter { ElementSizeMode.MaxFill.contain(it.sizeMode) }.forEach { it.updateSize() }
-        }
+        if (sizeMode.contain(ElementSizeMode.AutoHeight).not()) updateHeight()
+        if (sizeMode.contain(ElementSizeMode.AutoWidth).not()) updateWidth()
+
+        val (max, nonMax) = subElements.partition { it.sizeMode.contain(ElementSizeMode.MaxHeight) }
+        nonMax.forEach { it.updateHeight() }
+        updateHeight()
+        max.forEach { it.updateHeight() }
+
+        subElements.forEach { it.updateWidth() }
+
+        updateWidth()
+
+        super<AbstractLayout>.updateSize()
+        super<WeightLayout>.updateSize()
+
+        subElements.forEach { it.updateSize() }
     }
 
     override fun subElementOffset(element: Element): FloatOffset {
@@ -74,28 +72,29 @@ class RowLayout(
         return FloatOffset(x, y)
     }
 
-    override fun subElementMaxSize(element: Element): FloatSize {
-        val size = size.copy().minus(padding.size())
+    override fun subElementMaxWidth(element: Element): Float {
+        var w = width - padding.width
         subElements.forEachOrEnd({ it == element }){
-            size.width -= it.size.width
+            w -= it.size.width
         }
-
         // 当布局为自动时，不支持最大化子元素
         if (sizeMode.contain(ElementSizeMode.AutoWidth))
-            size.width = 0f
+            w = 0f
+        else {
+            if (element.sizeMode.contain(ElementSizeMode.MaxWidth) && weightSum.width != 0f){
+                w = subWeightWidth(element)
+            }
+        }
 
-        if (sizeMode.contain(ElementSizeMode.AutoHeight))
-            size.height = this.size.height - padding.size().height
+        return maxOf(w, 0f)
+    }
 
-        // 比例
+    override fun subElementMaxHeight(element: Element): Float {
+        var h = height - padding.height
         if (element.sizeMode.contain(ElementSizeMode.MaxHeight) && weightSum.height != 0f){
-            size.height = subElementWeightSize(element).height
+            h = subWeightHeight(element)
         }
 
-        if (element.sizeMode.contain(ElementSizeMode.MaxWidth) && weightSum.width != 0f){
-            size.width = subElementWeightSize(element).width
-        }
-
-        return size.nonNegativeValue()
+        return h
     }
 }

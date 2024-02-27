@@ -26,6 +26,11 @@ class ArcElement(
     private val path: Path get() = path()
     private val realSweepAngle: Float get() = minOf(359.9f, sweepAngle) // 计算正确的旋转角度
 
+    /**
+     * 弧形大小缓存，一次绘制只应该更新一次
+     */
+    protected var arcRect: Rect by attributes.valueOrElse { arcRect() }
+
     companion object{
         /**
          * 构建一个圆形
@@ -34,18 +39,13 @@ class ArcElement(
     }
 
     init {
-        beforeDrawChain.plus(buildDraw {
-
-        })
-
         beforeDrawChain.plus(shapeShadowDraw())
 
         elementDraw = buildDraw {
             saveBlock({
-                val bound = arcRect()
                 translate(padding.left, padding.top)
-                clipRect(Rect.makeWH(bound.width, bound.height))
-                translate(- bound.left, - bound.top)
+                clipRect(Rect.makeWH(arcRect.width, arcRect.height))
+                translate(- arcRect.left, - arcRect.top)
 
             }) {
                 drawPath(path, buildPaint())
@@ -55,9 +55,11 @@ class ArcElement(
 
     private fun buildPaint() = paint(paintBuilder)
 
-    override fun autoSize(): FloatSize {
-        return arcRect().size().add(padding.size())
-    }
+    override fun width(): Float =
+        arcRect.size().width + padding.width
+
+    override fun height(): Float =
+        arcRect.size().height + padding.height
 
     /**
      * 对弧形的宽高进行精确计算
@@ -67,12 +69,11 @@ class ArcElement(
     override fun shapeShadowDraw(): Draw = buildDraw {
         shadowInfo?.let {
             saveBlock({
-                val bound = arcRect()
                 translate(padding.left, padding.top)
 
                 clipPath(path, ClipMode.DIFFERENCE, antiAlias = true)
 
-                translate(- bound.left, - bound.top)
+                translate(- arcRect.left, - arcRect.top)
             }) {
                 drawPath(path, paint {
                     imageFilter = it.getDropShadowImageFilterOnly()

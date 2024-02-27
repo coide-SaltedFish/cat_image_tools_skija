@@ -87,8 +87,10 @@ class ImageBuilder<T: Layout>(
     fun build(): Image {
         modifier?.modifier(element = layout)
 
-        layout.updateSize()
-        layout.updateElementInfo()
+        runTime(message = "布局计算") {
+            layout.updateSize()
+            layout.updateElementInfo()
+        }
 
         return if (enableOpenGL){
             setWindowSize(layout.size)
@@ -109,7 +111,7 @@ class ImageBuilder<T: Layout>(
                     colorSpace
                 ) ?: error("Unable to initialize Surface from makeFromBackendRenderTarget")
 
-                runTime {
+                runTime("GPU绘制") {
                     layout.draw(ElementDrawContext(surface))
                 }
 
@@ -117,7 +119,7 @@ class ImageBuilder<T: Layout>(
             }
         }else {
             val surface = Surface.makeRaster(ImageInfo(colorInfo, layout.size.width.roundToInt(), layout.size.height.roundToInt()))
-            runTime {
+            runTime("绘制") {
                 layout.draw(ElementDrawContext(surface))
             }
             surface.makeImageSnapshot()

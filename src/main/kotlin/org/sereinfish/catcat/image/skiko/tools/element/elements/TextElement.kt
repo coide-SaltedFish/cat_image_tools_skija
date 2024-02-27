@@ -34,6 +34,9 @@ open class TextElement(
 
     protected val paint: Paint get() = buildPaint() // 获取实时构建的 Paint
 
+    // 文本绘制大小，每次绘制更新一次
+    protected var textDrawSize by attributes.valueOrElse { textDrawSize() }
+
     /**
      * 将字符大小存入缓存
      * 该缓存在一次绘制中只应该更新一次
@@ -73,10 +76,10 @@ open class TextElement(
     /**
      * 获取文本绘制坐标
      */
-    private fun getTextDrawOffset(): FloatOffset {
+    protected open fun getTextDrawOffset(): FloatOffset {
         val rect = getStringDrawRect(text)
 
-        val offset = alignment(size.copy().minus(padding.size()), getTextDrawSize()).apply {
+        val offset = alignment(size.copy().minus(padding.size()), textDrawSize).apply {
             if (isTextCompact)
                 x -= rect.left
             y -= rect.top
@@ -88,11 +91,11 @@ open class TextElement(
     /**
      * 获取文本绘制出来的大小
      */
-    private fun getTextDrawSize(): FloatSize {
-        return getTextDrawSize(text)
+    private fun textDrawSize(): FloatSize {
+        return textDrawSize(text)
     }
 
-    protected fun getTextDrawSize(str: String): FloatSize {
+    protected fun textDrawSize(str: String): FloatSize {
         val rect = getStringDrawRect(str)
         var width = 0f
         for (i in str.indices){
@@ -142,13 +145,6 @@ open class TextElement(
     }
 
     /**
-     * 获取元素大小
-     */
-    private fun getElementSize(): FloatSize {
-        return getTextDrawSize().add(padding.size())
-    }
-
-    /**
      * 自适应文本大小
      */
     protected fun adaptiveFontSize(){
@@ -159,10 +155,10 @@ open class TextElement(
                 // 求个大概的值
                 font.size = ((width - text.length * wordSpace) / text.length).roundToInt().toFloat()
                 // 循环匹配
-                var w = getTextDrawSize(text).width
+                var w = textDrawSize(text).width
                 while (w < width){
                     font.size ++
-                    w = getTextDrawSize(text).width
+                    w = textDrawSize(text).width
                 }
                 font.size --
 
@@ -179,10 +175,10 @@ open class TextElement(
                     // 求个大概的值
                     font.size = ((width - text.length * wordSpace) / text.length).roundToInt().toFloat()
                     // 循环匹配
-                    var w = getTextDrawSize(text).width
+                    var w = textDrawSize(text).width
                     while (w < width){
                         font.size ++
-                        w = getTextDrawSize(text).width
+                        w = textDrawSize(text).width
                     }
                     font.size --
                 }
@@ -194,11 +190,15 @@ open class TextElement(
      * 重写自动大小
      */
     override fun autoSize(): FloatSize {
-        return if (text.isEmpty()) FloatSize() else {
-            adaptiveFontSize()
-            getElementSize()
-        }
+        adaptiveFontSize()
+        return super.autoSize()
     }
+
+    override fun width(): Float =
+        (if (text.isEmpty()) 0f else textDrawSize.width) + padding.width
+
+    override fun height(): Float =
+        (if (text.isEmpty()) font.metrics.height else textDrawSize.height) + padding.height
 
     /**
      * 获取元素的 Paint

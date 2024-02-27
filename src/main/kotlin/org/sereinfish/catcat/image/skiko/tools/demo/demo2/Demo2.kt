@@ -4,6 +4,7 @@ import org.jetbrains.skia.*
 import org.sereinfish.catcat.image.skiko.tools.build.buildImageColumLayout
 import org.sereinfish.catcat.image.skiko.tools.build.extend.*
 import org.sereinfish.catcat.image.skiko.tools.build.modifier.Modifier
+import org.sereinfish.catcat.image.skiko.tools.draw.utils.buildDraw
 import org.sereinfish.catcat.image.skiko.tools.element.Layout
 import org.sereinfish.catcat.image.skiko.tools.element.elements.ImageElement
 import org.sereinfish.catcat.image.skiko.tools.element.elements.RectElement
@@ -44,16 +45,16 @@ fun main() {
                 .rRectShape(10, shadowInfo = ShadowInfo(0, 2, Color.BLACK.colorCopy(a = 150)), padding = padding(10))
                 .maxWidth()
         ) {
-            p place image(
-                image = imageFile,
-                offset = offset(x = - imageFile.width / 4, y = imageFile.height / 5),
-                cropMode = CropMode.FillWidth,
-                alignment = Alignment.CENTER,
-                samplingMode = SamplingMode.CATMULL_ROM,
-                modifier = Modifier<ImageElement>()
-                    .maxSize()
-                    .imageBlur(3)
-            )
+//            p place image(
+//                image = imageFile,
+//                offset = offset(x = - imageFile.width / 4, y = imageFile.height / 5),
+//                cropMode = CropMode.FillWidth,
+//                alignment = Alignment.CENTER,
+//                samplingMode = SamplingMode.CATMULL_ROM,
+//                modifier = Modifier<ImageElement>()
+//                    .maxSize()
+//                    .imageBlur(3)
+//            )
 
             p place rect(
                 modifier = Modifier<RectElement>()
@@ -100,6 +101,11 @@ fun main() {
             modifier = Modifier<AbsoluteLayout>()
                 .maxWidth()
         ) {
+            beforeDrawChain.plus(buildDraw {
+                clear(Color.RED)
+                println(size)
+            })
+
             p place shape(
                 modifier = Modifier<ShapeElement>()
                     .maxSize()
@@ -183,7 +189,7 @@ private fun Layout.userNameInfo(
     modifier: Modifier<ColumLayout> = Modifier(),
     name: String,
     desc: String
-) = colum {
+) = colum(modifier) {
     text(
         modifier = Modifier<TextElement>()
             .padding(3),

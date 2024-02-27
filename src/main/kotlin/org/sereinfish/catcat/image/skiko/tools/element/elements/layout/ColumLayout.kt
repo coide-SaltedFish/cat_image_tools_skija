@@ -1,8 +1,6 @@
 package org.sereinfish.catcat.image.skiko.tools.element.elements.layout
 
-import org.sereinfish.catcat.image.skiko.tools.element.AbstractLayout
-import org.sereinfish.catcat.image.skiko.tools.element.Element
-import org.sereinfish.catcat.image.skiko.tools.element.WeightLayout
+import org.sereinfish.catcat.image.skiko.tools.element.*
 import org.sereinfish.catcat.image.skiko.tools.element.measure.ElementSizeMode
 import org.sereinfish.catcat.image.skiko.tools.element.measure.alignment.Alignment
 import org.sereinfish.catcat.image.skiko.tools.element.measure.alignment.AlignmentLayout
@@ -20,19 +18,8 @@ open class ColumLayout(
     override var alignment: Alignment = Alignment.LEFT.and(Alignment.TOP),
 ): AbstractLayout(), AlignmentLayout, WeightLayout {
 
-    /**
-     * 自动大小
-     */
-    override fun autoSize(): FloatSize {
-        return FloatSize().apply {
-            subElements.forEach {
-                if (it.sizeMode.contain(ElementSizeMode.MaxHeight).not())
-                    height += it.size.height
-                if (it.sizeMode.contain(ElementSizeMode.MaxWidth).not())
-                    width = maxOf(width, it.size.width)
-            }
-        }.add(padding.size())
-    }
+    override fun width(): Float = subElements.maxOf { it.width } + padding.width
+    override fun height(): Float = subElements.sumOf { it.height } + padding.height
 
     /**
      * 获取子元素Y坐标
@@ -44,23 +31,33 @@ open class ColumLayout(
 
     /**
      * 更新布局大小
-     * 1. 更新子元素大小
-     * 2. 更新自己大小
-     * 3. 作为比例布局更新大小
-     * 4. 再次更新max子元素大小
+     * 1. 更新除Max子元素宽度
+     * 2. 更新布局宽度
+     * 3. 更新子元素高度
+     * 4. 更新布局高度
      */
     override fun updateSize() {
-        if (sizeMode == ElementSizeMode.Value || sizeMode == ElementSizeMode.MaxFill){
-            super<AbstractLayout>.updateSize()
-            super<WeightLayout>.updateSize()
+        initSizeFlag()
 
-            subElements.forEach { it.updateSize() }
-        }else {
-            subElements.forEach { it.updateSize() }
-            super<AbstractLayout>.updateSize()
-            super<WeightLayout>.updateSize()
-            subElements.filter { ElementSizeMode.MaxFill.contain(it.sizeMode) }.forEach { it.updateSize() }
-        }
+        if (sizeMode.contain(ElementSizeMode.AutoHeight).not()) updateHeight()
+        if (sizeMode.contain(ElementSizeMode.AutoWidth).not()) updateWidth()
+
+        val (max, nonMax) = subElements.partition { it.sizeMode.contain(ElementSizeMode.MaxWidth) }
+        // 更新子元素宽度
+        nonMax.forEach { it.updateWidth() }
+        updateWidth()
+
+        max.forEach { it.updateWidth() }
+
+        // 更新子元素高度
+        subElements.forEach { it.updateHeight() }
+
+        updateHeight()
+
+        super<AbstractLayout>.updateSize()
+        super<WeightLayout>.updateSize()
+
+        subElements.forEach { it.updateSize() }
     }
 
     /**
@@ -93,25 +90,29 @@ open class ColumLayout(
     /**
      * 返回子元素所能拥有最大空间
      */
-    override fun subElementMaxSize(element: Element): FloatSize {
-        val size = size.copy().minus(padding.size())
-        subElements.forEachOrEnd({ it == element && size.height > 0 }){
-            size.height -= it.size.height
+    override fun subElementMaxWidth(element: Element): Float {
+        var w = width - padding.width
+        if (element.sizeMode.contain(ElementSizeMode.MaxWidth) && weightSum.width != 0f){
+            w = subWeightWidth(element)
         }
 
+        return maxOf(w, 0f)
+    }
+
+    override fun subElementMaxHeight(element: Element): Float {
+        var h = height - padding.height
+        subElements.forEachOrEnd({ it == element && size.height > 0 }){
+            h -= it.size.height
+        }
         // 当布局为自动时，不支持最大化子元素
         if (sizeMode.contain(ElementSizeMode.AutoHeight))
-            size.height = 0f
-
-        // 计算比例坐标
-        if (element.sizeMode.contain(ElementSizeMode.MaxHeight) && weightSum.height != 0f){
-            size.height = subElementWeightSize(element).height
+            h = 0f
+        else {
+            if (element.sizeMode.contain(ElementSizeMode.MaxHeight) && weightSum.height != 0f) {
+                h = subWeightHeight(element)
+            }
         }
 
-        if (element.sizeMode.contain(ElementSizeMode.MaxWidth) && weightSum.width != 0f){
-            size.width = subElementWeightSize(element).width
-        }
-
-        return size.nonNegativeValue()
+        return maxOf(h, 0f)
     }
 }

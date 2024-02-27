@@ -58,6 +58,17 @@ inline fun <T> Iterable<T>.forEachWithSeparator(separator: (T) -> Unit = {}, act
     }
 }
 
+inline fun CharSequence.forEachWithSeparator(separator: (Char) -> Unit = {}, action: (Char) -> Unit){
+    val iterator = this.iterator()
+    while (iterator.hasNext()) {
+        val value = iterator.next()
+        action(value)
+        if (iterator.hasNext()) {
+            separator(value)
+        }
+    }
+}
+
 inline fun <T> Array<T>.forEachWithSeparator(separator: (T) -> Unit = {}, action: (T) -> Unit){
     val iterator = this.iterator()
     while (iterator.hasNext()) {

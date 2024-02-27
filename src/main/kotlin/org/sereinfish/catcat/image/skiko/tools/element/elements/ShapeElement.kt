@@ -26,6 +26,10 @@ class ShapeElement(
         path(this@ShapeElement)
     }
 
+    protected var pathRect by attributes.valueOrElse {
+        pathBuild.computeTightBounds()
+    }
+
     init {
         elementDraw = buildDraw {
 
@@ -41,10 +45,9 @@ class ShapeElement(
             }
 
             saveBlock({
-                val bound = pathBuild.computeTightBounds()
                 translate(padding.left, padding.top)
-                clipRect(Rect.makeWH(bound.width, bound.height))
-                translate(- bound.left, - bound.top)
+                clipRect(Rect.makeWH(pathRect.width, pathRect.height))
+                translate(- pathRect.left, - pathRect.top)
             }) {
 
                 drawPath(pathBuild, paint(paintBuilder))
@@ -52,7 +55,6 @@ class ShapeElement(
         }
     }
 
-    override fun autoSize(): FloatSize {
-        return pathBuild.computeTightBounds().size().add(padding.size())
-    }
+    override fun height(): Float = pathRect.height + padding.height
+    override fun width(): Float = pathRect.width + padding.width
 }

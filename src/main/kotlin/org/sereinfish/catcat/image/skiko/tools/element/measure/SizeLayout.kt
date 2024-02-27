@@ -6,10 +6,13 @@ interface SizeLayout {
     var size: FloatSize
     var sizeMode: ElementSizeMode
 
-    /**
-     * 元素最大大小
-     */
-    fun maxSize(): FloatSize
+    var width: Float
+        get() = size.width
+        set(value) { size.width = value }
+
+    var height: Float
+        get() = size.height
+        set(value) { size.height = value }
 
     /**
      * 大小的默认实现

@@ -29,6 +29,8 @@ class ImageElement(
     var samplingMode: SamplingMode = SamplingMode.DEFAULT, // 图片采样模式
     var paintBuilder: Paint.(element: ImageElement) -> Unit = {}, // 构建 Paint
 ): AbstractElement(), CropLayout, AlignmentLayout {
+    protected var imageSize by attributes.valueOrElse { imageSize() }
+
     init {
         elementDraw = buildDraw { context ->
             saveBlock({
@@ -73,16 +75,24 @@ class ImageElement(
         paintBuilder(this@ImageElement)
     }
 
+    override fun height(): Float =
+        imageSize.height + padding.height
+
+    override fun width(): Float =
+        imageSize.width + padding.width
+
     /**
-     * 重写自动大小
+     * 计算图像大小
      */
-    override fun autoSize(): FloatSize {
+    protected fun imageSize(): FloatSize {
         // 如果有最大化，向父组件请求大小，然后等比缩放
         var size = FloatSize(image.width, image.height)
         // 请求最大大小
-        val maxSize = parent?.subElementMaxSize(this) ?: FloatSize()
+        val maxSize = parent?.let {
+            FloatSize(it.subElementMaxWidth(this), it.subElementMaxHeight(this))
+        } ?: FloatSize()
 
-        if (sizeMode.contain(ElementSizeMode.MaxWidth) || sizeMode.contain(ElementSizeMode.MaxHeight)){
+        if (ElementSizeMode.MaxFill.contain(sizeMode)){
             // 计算能完全容纳图像的大小
             val scaleW = maxSize.width / image.width
             val scaleH = maxSize.height / image.height
@@ -92,7 +102,7 @@ class ImageElement(
             size *= scale
         }
 
-        return size.add(padding.size())
+        return size
     }
 
 }

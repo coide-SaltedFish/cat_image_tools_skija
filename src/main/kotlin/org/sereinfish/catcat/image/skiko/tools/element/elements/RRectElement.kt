@@ -37,9 +37,8 @@ class RRectElement(
         }
     }
 
-    override fun autoSize(): FloatSize {
-        return FloatSize(rRect.width, rRect.height).add(padding.size())
-    }
+    override fun width(): Float = rRect.width + padding.width
+    override fun height(): Float = rRect.height + padding.height
 
     override fun shapeShadowDraw(): Draw = buildDraw {
         shadowInfo?.let {

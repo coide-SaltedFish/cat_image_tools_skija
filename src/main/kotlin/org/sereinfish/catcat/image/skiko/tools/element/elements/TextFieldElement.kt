@@ -1,104 +1,51 @@
 package org.sereinfish.catcat.image.skiko.tools.element.elements
 
 import org.jetbrains.skia.*
-import org.sereinfish.catcat.image.skiko.tools.build.extend.row
-import org.sereinfish.catcat.image.skiko.tools.build.extend.size
-import org.sereinfish.catcat.image.skiko.tools.build.modifier.Modifier
-import org.sereinfish.catcat.image.skiko.tools.element.elements.layout.ColumLayout
-import org.sereinfish.catcat.image.skiko.tools.element.elements.layout.RowLayout
+import org.sereinfish.catcat.image.skiko.tools.draw.utils.buildDraw
 import org.sereinfish.catcat.image.skiko.tools.element.measure.ElementSizeMode
 import org.sereinfish.catcat.image.skiko.tools.element.measure.ShadowInfo
 import org.sereinfish.catcat.image.skiko.tools.element.measure.alignment.Alignment
 import org.sereinfish.catcat.image.skiko.tools.element.measure.alignment.and
+import org.sereinfish.catcat.image.skiko.tools.element.measure.offset.FloatOffset
 import org.sereinfish.catcat.image.skiko.tools.element.measure.size.FloatSize
 import org.sereinfish.catcat.image.skiko.tools.utils.forEachWithSeparator
-import org.sereinfish.catcat.image.skiko.tools.utils.paint
-import java.util.Vector
+import org.sereinfish.catcat.image.skiko.tools.utils.saveBlock
 
 /**
- * 文本域
- *
- * TODO 取消使用ColumLayout容器
+ * 绘制流程
+ * 1. 计算容器大小
+ * 2. 分割文本
+ * 3. 绘制文本
  */
 class TextFieldElement(
-    val text: String, // 字符串
-    var subModifier: Modifier<in TextElement> = Modifier(),
-    var font: Font = Font(Typeface.makeFromName("黑体", FontStyle.NORMAL), 18f), // 字体
-    var wordSpace: Float = 0f, // 字间距
+    text: String, // 字符串
+    font: Font = Font(Typeface.makeFromName("黑体", FontStyle.NORMAL), 18f), // 字体
+    wordSpace: Float = 0f, // 字间距
     var lineSpace: Float = 0f, // 行间距
-
-    var color: Int = Color.BLACK, // 字体颜色
-    var shadow: ShadowInfo? = null, // 文字阴影
+    color: Int = Color.BLACK, // 字体颜色
+    shadow: ShadowInfo? = null, // 文字阴影
     alignment: Alignment = Alignment.LEFT.and(Alignment.CENTER_VERTICAL), // 对齐方式
-    var paintBuilder: (Paint.() -> Unit)? = null, // 画笔构建
-    var isTextCompact: Boolean = false // 紧凑绘制文本
-): ColumLayout(alignment) {
-    /**
-     * 将字符大小存入缓存
-     * 该缓存在一次绘制中只应该更新一次
-     */
-    protected var charsRect: Map<Char, Rect> by attributes.valueOrElse {
-        buildMap {
-            text.toSet().forEach {
-                put(it, font.measureText("$it", paint))
-            }
+    paintBuilder: (Paint.() -> Unit)? = null, // 画笔构建
+    isTextCompact: Boolean = false, // 紧凑绘制文本
+): TextElement(text, font, wordSpace, color, shadow, alignment, paintBuilder, isTextCompact) {
 
-            put('■', font.measureText("■", paint))
-            put('▌', font.measureText("▌", paint))
-        }
-    }
-
-    protected val paint: Paint get() = buildPaint() // 获取实时构建的 Paint
-
-    // 完成文本行分割，然后依次添加到布局
-    fun updateTextField(){
-        if (subElements.isNotEmpty()) subElements.clear()
-        stringLines().forEachWithSeparator({
-            if (lineSpace > 0)
-                row(Modifier<RowLayout>().size(0.1, lineSpace))
-        }) {
-            add(TextElement(it, font, wordSpace, color, shadow, paintBuilder = paintBuilder, isTextCompact = isTextCompact).apply {
-                subModifier.modifier(this)
-            })
-        }
-    }
-
-    override fun updateSize() {
-        size = size()
-        updateTextField()
-        super.updateSize()
-    }
+    // 字符位置的缓存，一次绘制仅更新一次
+    protected var charsOffset: List<FloatOffset> by attributes.valueOrElse { charsOffset() }
 
     /**
-     * 根据文本换行符以及元素大小完成文本分割
+     * 绘制文本
      */
-    protected fun stringLines(): List<String> {
-        val strs = text.split("\n")
-
-        // 如果宽度为自动
-        return if((sizeMode.contain(ElementSizeMode.MaxWidth) or sizeMode.contain(ElementSizeMode.ValueWidth)).not()){
-            strs
-        }else {
-            buildList {
-                // 需要获取元素的具体宽度
-                val w = if (sizeMode.contain(ElementSizeMode.MaxWidth))
-                    maxSize().minus(padding.size()).width
-                else this@TextFieldElement.size.minus(padding.size()).width
-
-                // 开始计算字符能否放下
-                strs.forEach {
-                    if (getTextDrawSize(it).width < w)
-                        add(it)
-                    else {
-                        var offset = 0
-                        for (i in it.indices){
-                            if (getTextDrawSize(it.substring(offset, i + 1)).width > w){
-                                add(it.substring(offset, i))
-                                offset = i
-                            }
-                        }
-                        if (offset != it.length)
-                            add(it.substring(offset, it.length))
+    init {
+        elementDraw = buildDraw { context ->
+            if (text.isNotEmpty()){
+                saveBlock({
+                    translate(padding.left, padding.top)
+                    clipRect(Rect.makeWH(size.width, size.height))
+                }) {
+                    val startOffset = getTextDrawOffset() // 获取起始坐标
+                    charsOffset.forEachIndexed { index, floatOffset ->
+                        val offset = floatOffset.add(startOffset)
+                        drawString("${text[index]}", offset.x, offset.y, font, paint)
                     }
                 }
             }
@@ -106,75 +53,119 @@ class TextFieldElement(
     }
 
     /**
-     * 重写自动大小
-     *
-     * 需要考虑的情况
-     * 一、文本中有换行
-     * 二、布局限制需要换行
-     *
-     * 1. 自动大小  检查换行符，一行一行的绘制
-     * 2. 限制宽度 根据宽度和换行符计算行
-     * 3. 最大大小 根据布局返回的大小计算行
-     *
-     * 处理顺序
-     * 1. 根据换行符进行换行处理
-     * 2. 计算元素所能拥有的空间，如果为自动则为无限大
-     * 3. 根据空间大小再次进行换行计算处理
-     * 4. 根据行数计算元素的最终大小
-     * 5. 根据分配好的文本行数完成文本绘制
+     * 宽度决定文本高度
      */
-//    override fun autoSize(): FloatSize {
-//        val lines = stringLines()
-//        val size = getTextDrawSize(lines.maxBy { it.length })
-//        val height = lines.sumOf { getTextDrawSize(it).height } + (lines.size - 1) * lineSpace
-//        return FloatSize(size.width, height).add(padding.size())
-//    }
+    override fun width(): Float {
+        val lines = text.split("\n")
+        return lines.maxOf { getStringWidth(it) }
+    }
 
-    protected fun getTextDrawSize(str: String): FloatSize {
-        val rect = getStringDrawRect(str)
+    /**
+     * 基于宽度获取高度
+     */
+    override fun height(): Float {
+        // 更新字符位置缓存
+        charsOffset = charsOffset()
+
+        val w = width - padding.width
+        // 如果文本域为自动宽度，仅根据换行符返回高度
+        if (sizeMode.contain(ElementSizeMode.AutoWidth)){
+            val lines = text.split("\n")
+            return lines.size * font.metrics.height
+        }else {
+            return charsOffset.maxOf { it.x + font.metrics.height }
+        }
+    }
+
+    /**
+     * 计算字符位置，此方法需要在 width 计算之后调用
+     * 1. 如果文本域为自动宽度，文本宽度直接增加，高度根据换行符增加
+     * 2. 其他根据文本域宽度依次计算
+     */
+    protected fun charsOffset(): List<FloatOffset> {
+        if (width < charsRect.values.maxOf { it.width })
+            logger.warn { "文本域宽度小于所容纳的字符绘制宽度: $width" }
+        return buildList {
+            var x = 0f
+            var y = 0f
+            val w = width - padding.width
+            if (sizeMode.contain(ElementSizeMode.AutoWidth)){
+                text.split("\n").forEachWithSeparator({
+                    y += lineSpace + font.metrics.height
+                    x = 0f
+                    add(FloatOffset(x, y))
+                }) { line ->
+                    line.map { getCharDrawRect(it) }.forEachWithSeparator({
+                        x += wordSpace
+                        if (isTextCompact.not())
+                            x += it.left
+                    }) {
+                        add(FloatOffset(x, y))
+                        x += it.width
+                    }
+                }
+            }else {
+                for (i in text.indices){
+                    val c = text[i]
+                    // 换行符换行
+                    if (c == '\n'){
+                        y += lineSpace + font.metrics.height
+                        x = 0f
+                        add(FloatOffset(x, y))
+                        continue
+                    }
+                    // 判断是否碰到边界
+                    val rect = getCharDrawRect(c)
+                    var cw = rect.width
+                    if (isTextCompact.not()) cw += rect.left
+
+                    if (x + cw > w){ // 换行
+                        y += lineSpace + font.metrics.height
+                        x = 0f
+                    }else {
+                        if (i <= text.length - 1) cw += wordSpace
+                    }
+                    add(FloatOffset(x, y))
+                    x += cw
+                }
+            }
+        }
+    }
+
+    /**
+     * 获取字符串的绘制宽度
+     */
+    private fun getStringWidth(text: String): Float {
         var width = 0f
-        for (i in str.indices){
-            val cr = getCharDrawRect(str[i])
-            width += cr.width + wordSpace + cr.left
-        }
-        width += (text.length - 1) * wordSpace
-        return FloatSize(width, rect.height)
-    }
+        for (i in text.indices){
+            val rect = getCharDrawRect(text[i])
+            width += rect.width
 
-    protected fun getStringDrawRect(text: String): Rect {
-        var l = 0f
-        var r = 0f
-        var t = 0f
-        var b = 0f
-        text.map { getCharDrawRect(it) }.forEach {
-            l = minOf(l, it.left)
-            r += it.right
-            t = minOf(t, it.top)
-            b = maxOf(b, it.bottom)
+            if (i != 0)
+                width += wordSpace
+            if (isTextCompact.not())
+                width += rect.left
         }
-
-        return Rect.makeLTRB(l, t, r, b)
+        return width
     }
 
     /**
-     * 获取单个字符大小
+     * 获取文本域起始坐标
+     *
+     * 在绘制时使用
      */
-    protected fun getCharDrawRect(c: Char): Rect {
-        if ("，。？＇！……".contains(c)) return charsRect['■'] ?: font.measureText("■", paint)
-        if (",.?\\'! ……".contains(c)) return charsRect['▌'] ?: font.measureText("▌", paint)
-        return charsRect[c] ?: font.measureText("$c", paint)
+    override fun getTextDrawOffset(): FloatOffset {
+        return FloatOffset().apply {
+            alignment(size.copy().minus(padding.size()), textDrawSize())
+        }
     }
 
-    /**
-     * 获取元素的 Paint
-     */
-    private fun buildPaint(): Paint = paint {
-        color = this@TextFieldElement.color
-        isAntiAlias = true
-        shadow?.let {
-            imageFilter = it.getDropShadowImageFilter()
+    protected fun textDrawSize(): FloatSize {
+        return FloatSize().apply {
+            charsOffset.forEachIndexed { i, charOffset ->
+                height = maxOf(charOffset.y + font.metrics.height, height)
+                width = this@TextFieldElement.width - padding.width
+            }
         }
-
-        paintBuilder?.invoke(this) // 构建器
     }
 }

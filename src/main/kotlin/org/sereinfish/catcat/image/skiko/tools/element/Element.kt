@@ -5,7 +5,6 @@ import org.sereinfish.catcat.image.skiko.tools.element.context.ElementAttrContex
 import org.sereinfish.catcat.image.skiko.tools.element.context.ElementDrawContext
 import org.sereinfish.catcat.image.skiko.tools.element.draw.ElementDrawChain
 import org.sereinfish.catcat.image.skiko.tools.element.measure.SizeLayout
-import org.sereinfish.catcat.image.skiko.tools.element.measure.size.FloatSize
 import org.jetbrains.skia.Rect
 import org.sereinfish.catcat.image.skiko.tools.utils.saveBlock
 
@@ -30,9 +29,10 @@ interface Element: SizeLayout {
     var parent: Layout? // 父元素
 
     /**
-     * 自动模式下的元素大小
+     * 元素的宽高
      */
-    fun autoSize(): FloatSize
+    fun height(): Float
+    fun width(): Float
 
     /**
      * 更新元素的信息
@@ -45,6 +45,13 @@ interface Element: SizeLayout {
      */
     fun updateSize() {
         size = size()
+    }
+
+    fun updateWidth(){
+        width = width()
+    }
+    fun updateHeight(){
+        height = height()
     }
 
     /**
